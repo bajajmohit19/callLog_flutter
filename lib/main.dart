@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Flutter Audio Query",
+      title: "Sales CRM",
       home: BlocProvider(
         bloc: bloc,
         child: MainScreen(),
