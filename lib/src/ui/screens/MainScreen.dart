@@ -62,7 +62,7 @@ class _MainScreenState extends State<MainScreen> {
                       hintStyle: new TextStyle(color: Colors.grey)),
                 );
 
-              return Text('Flutter AudioQuery Plugin');
+              return Text('Sales CRM');
             }),
         actions: <Widget>[
           StreamBuilder<SearchBarState>(
