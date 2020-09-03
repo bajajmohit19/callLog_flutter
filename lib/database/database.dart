@@ -11,7 +11,7 @@ class DBProvider {
   DBProvider._();
 
   static final DBProvider db = DBProvider._();
-
+  final uuid = Uuid();
   Database _database;
 
   Future<Database> get database async {
@@ -27,9 +27,9 @@ class DBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute("CREATE TABLE recordings ("
-          "id INTEGER PRIMARY KEY,"
-          "title TEXT,"
-          "syncTime CURRENT_TIMESTAMP,"
+          "id TEXT PRIMARY KEY,"
+          "title TEXT UNIQUE,"
+          "isSynced BOOLEAN,"
           "createdAt CURRENT_TIMESTAMP"
           ")");
     });
@@ -43,7 +43,7 @@ class DBProvider {
         buffer.write(",\n");
       }
       buffer.write("('");
-      buffer.write(Uuid());
+      buffer.write(uuid.v4());
       buffer.write("', '");
       buffer.write(recording.title);
       buffer.write("', '");
@@ -56,6 +56,14 @@ class DBProvider {
         .rawInsert("INSERT Into recordings (id,title,isSynced,createdAt)"
             " VALUES ${buffer.toString()}");
     return raw;
+  }
+
+  listRecordings() async {
+    final db = await database;
+    var res = await db.rawQuery("SELECT * FROM recordings");
+    List<Recordings> list =
+        res.isNotEmpty ? res.map((c) => Recordings.fromMap(c)).toList() : [];
+    return list;
   }
 
   setRecordingsSync(List<Recordings> recordings) async {

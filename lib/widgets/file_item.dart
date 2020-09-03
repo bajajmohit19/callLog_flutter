@@ -8,13 +8,13 @@ import 'package:open_file/open_file.dart';
 import 'package:path/path.dart';
 
 class FileItem extends StatelessWidget {
-  final FileSystemEntity file;
-  // final Function popTap;
+  final file;
+  final isSynced;
 
   FileItem({
     Key key,
     @required this.file,
-    // this.popTap,
+    this.isSynced,
   }) : super(key: key);
 
   @override
@@ -26,7 +26,7 @@ class FileItem extends StatelessWidget {
         file: file,
       ),
       title: Text(
-        "${basename(file.path)}",
+        "${basename(file.path)} ${isSynced == true ? 'Sync' : 'Unsynced'}",
         style: TextStyle(
           fontSize: 14,
         ),
