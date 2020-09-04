@@ -50,9 +50,9 @@ class FileUtils {
     List<Directory> storages = await getStorageList();
     List<FileSystemEntity> files = List<FileSystemEntity>();
     for (Directory dir in storages) {
-      files.addAll(await getAllFilesInPath(dir.path, showHidden: showHidden));
+      files.addAll(getAllFilesInPath(dir.path, showHidden: showHidden));
     }
-    developer.log('log me',error: files);
+    developer.log('log me', error: files);
     return files;
   }
 
@@ -70,7 +70,7 @@ class FileUtils {
     List<Directory> storage = await getStorageList();
     List<FileSystemEntity> files = List<FileSystemEntity>();
     for (Directory dir in storage) {
-      List fs = await getAllFilesInPath(dir.path, showHidden: showHidden);
+      List fs = getAllFilesInPath(dir.path, showHidden: showHidden);
       for (FileSystemEntity fs in fs) {
         if (basename(fs.path).toLowerCase().contains(query.toLowerCase())) {
           files.add(fs);
@@ -81,7 +81,8 @@ class FileUtils {
   }
 
   /// Get all files
-  static List<FileSystemEntity> getAllFilesInPath(String path,{bool showHidden}) {
+  static List<FileSystemEntity> getAllFilesInPath(String path,
+      {bool showHidden}) {
     List<FileSystemEntity> files = List<FileSystemEntity>();
     Directory d = Directory(path);
     List<FileSystemEntity> l = d.listSync();
@@ -99,12 +100,11 @@ class FileUtils {
 //          print(file.path);
           if (!showHidden) {
             if (!basename(file.path).startsWith(".")) {
-              files.addAll(
-                  getAllFilesInPath(file.path, showHidden: showHidden));
+              files
+                  .addAll(getAllFilesInPath(file.path, showHidden: showHidden));
             }
           } else {
-            files.addAll(
-                getAllFilesInPath(file.path, showHidden: showHidden));
+            files.addAll(getAllFilesInPath(file.path, showHidden: showHidden));
           }
         }
       }

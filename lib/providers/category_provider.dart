@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mime_type/mime_type.dart';
 
 class CategoryProvider extends ChangeNotifier {
-  CategoryProvider() {}
+  CategoryProvider();
 
   bool loading = false;
   List<FileSystemEntity> audio = List();

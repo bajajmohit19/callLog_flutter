@@ -66,7 +66,7 @@ class _FolderState extends State<Folder> with WidgetsBindingObserver {
       await DBProvider.db.addRecordings(files);
     } catch (exception) {}
     files = await DBProvider.db.listRecordings();
-    DBProvider.db.setRecordingsSync();
+    // DBProvider.db.setRecordingsSync();
     setState(() {});
   }
 
