@@ -21,9 +21,12 @@ class Browse extends StatelessWidget {
               ),
               actions: <Widget>[
                 IconButton(
-                  tooltip: "Search",
-                  onPressed: () {},
-                  icon: Icon(Icons.search),
+                  tooltip: "Sync",
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  onPressed: () {
+                    // add sync method here for api suncing
+                  },
+                  icon: Icon(Icons.sync),
                 )
               ],
             ),

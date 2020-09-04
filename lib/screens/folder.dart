@@ -66,6 +66,7 @@ class _FolderState extends State<Folder> with WidgetsBindingObserver {
       await DBProvider.db.addRecordings(files);
     } catch (exception) {}
     files = await DBProvider.db.listRecordings();
+    DBProvider.db.setRecordingsSync();
     setState(() {});
   }
 
@@ -109,11 +110,7 @@ class _FolderState extends State<Folder> with WidgetsBindingObserver {
                 itemBuilder: (BuildContext context, int index) {
                   dynamic file = files[index];
 
-                  return Ink(
-                      color: file.isSynced == true
-                          ? Color.fromRGBO(217, 247, 190, 1)
-                          : Color.fromRGBO(255, 204, 199, 1),
-                      child: FileItem(file: file));
+                  return FileItem(file: file);
                 },
                 separatorBuilder: (BuildContext context, int index) {
                   return Stack(

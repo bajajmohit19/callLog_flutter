@@ -31,7 +31,7 @@ class Recordings {
       id: json["id"],
       title: json["title"],
       path: json['path'],
-      isSynced: json["isSynced"] == 0,
+      isSynced: json["isSynced"] == 1,
       size: json["size"],
       formatedTime: json["formatedTime"],
       createdAt: DateTime.parse(json["createdAt"].toString()));

@@ -52,7 +52,7 @@ class DBProvider {
       buffer.write("', '");
       buffer.write(recording.path);
       buffer.write("', '");
-      buffer.write(false);
+      buffer.write(0);
       buffer.write("', '");
       buffer.write(recording.size);
       buffer.write("', '");
@@ -75,7 +75,7 @@ class DBProvider {
     return list;
   }
 
-  setRecordingsSync(List<Recordings> recordings) async {
+  setRecordingsSync(List<dynamic> recordings) async {
     final db = await database;
     List arr = [];
     List ids = [];
