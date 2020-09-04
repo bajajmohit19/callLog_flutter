@@ -10,15 +10,15 @@ import 'package:crm/util/consts.dart';
 import 'package:crm/screens/splash.dart';
 
 void main() => runApp(
-  MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AppProvider()),
-        ChangeNotifierProvider(create: (_) => CoreProvider()),
-        ChangeNotifierProvider(create: (_) => CategoryProvider()),
-      ],
-      child: MyApp(),
-    ),
-);
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AppProvider()),
+          ChangeNotifierProvider(create: (_) => CoreProvider()),
+          ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ],
+        child: MyApp(),
+      ),
+    );
 
 class MyApp extends StatelessWidget {
   // final ApplicationBloc bloc = ApplicationBloc();
@@ -33,7 +33,6 @@ class MyApp extends StatelessWidget {
           navigatorKey: appProvider.navigatorKey,
           title: Constants.appName,
           theme: appProvider.theme,
-          darkTheme: Constants.darkTheme,
           home: Splash(),
         );
       },

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:crm/screens/browse.dart';
+import 'package:crm/screens/layout.dart';
 import 'package:crm/util/consts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
