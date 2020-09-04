@@ -5,7 +5,7 @@ class Constants {
   static String appName = "Sales CRM";
 
   //Colors for theme
-  static Color lightPrimary = Color(0xfff3f4f9);
+  static Color lightPrimary = Color(0xff025dfa);
   static Color lightAccent = Color(0xff597ef7);
   static Color lightBG = Color(0xfff3f4f9);
 
@@ -19,7 +19,7 @@ class Constants {
       elevation: 0,
       textTheme: TextTheme(
         headline6: TextStyle(
-          color: Colors.black,
+          color: Colors.white,
           fontSize: 20,
           fontWeight: FontWeight.w800,
         ),

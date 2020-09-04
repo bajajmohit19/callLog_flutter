@@ -11,8 +11,7 @@ class Browse extends StatelessWidget {
       builder: (BuildContext context, CoreProvider coreProvider, Widget child) {
         return Scaffold(
             appBar: AppBar(
-              backgroundColor: Theme.of(context).backgroundColor,
-              centerTitle: true,
+              backgroundColor: Theme.of(context).primaryColor,
               title: Text(
                 "${Constants.appName}",
                 style: TextStyle(

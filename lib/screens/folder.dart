@@ -101,6 +101,7 @@ class _FolderState extends State<Folder> with WidgetsBindingObserver {
         }
       },
       child: Scaffold(
+        backgroundColor: Theme.of(context).backgroundColor,
         body: files.isEmpty
             ? Center(
                 child: Text("There's nothing here"),
