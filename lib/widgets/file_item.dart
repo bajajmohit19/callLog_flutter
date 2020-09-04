@@ -8,7 +8,7 @@ import 'package:open_file/open_file.dart';
 import 'package:path/path.dart';
 
 class FileItem extends StatelessWidget {
-  final file;
+  final dynamic file;
   final isSynced;
 
   FileItem({
@@ -21,20 +21,20 @@ class FileItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () => OpenFile.open(file.path),
-      contentPadding: EdgeInsets.all(0),
+      contentPadding: EdgeInsets.only(left: 20),
       leading: FileIcon(
         file: file,
       ),
       title: Text(
-        "${basename(file.path)} ${isSynced == true ? 'Sync' : 'Unsynced'}",
+        "${file.title}",
         style: TextStyle(
           fontSize: 14,
         ),
         maxLines: 2,
       ),
       subtitle: Text(
-        "${FileUtils.formatBytes(file == null ? 678476 : File(file.path).lengthSync(), 2)},"
-        " ${file == null ? "Test" : FileUtils.formatTime(File(file.path).lastModifiedSync().toIso8601String())}",
+        "${file.size},"
+        " ${file.formatedTime}",
       ),
       // trailing: popTap == null
       //     ? null

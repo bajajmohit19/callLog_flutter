@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:crm/providers/core_provider.dart';
 import 'package:crm/screens/browse.dart';
 import 'package:crm/util/consts.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
 
 class Splash extends StatefulWidget {
   @override
@@ -42,9 +39,6 @@ class _SplashState extends State<Splash> {
                   child: Browse(),
                 ),
               );
-              Timer(Duration(seconds: 1), () {
-                Provider.of<CoreProvider>(context, listen: false).checkSpace();
-              });
             }
           });
     } else {
@@ -55,7 +49,6 @@ class _SplashState extends State<Splash> {
           child: Browse(),
         ),
       );
-      Provider.of<CoreProvider>(context, listen: false).checkSpace();
     }
   }
 

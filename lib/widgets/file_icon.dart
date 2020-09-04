@@ -6,7 +6,7 @@ import 'package:mime_type/mime_type.dart';
 import 'package:path/path.dart';
 
 class FileIcon extends StatelessWidget {
-  final FileSystemEntity file;
+  final dynamic file;
 
   FileIcon({
     Key key,

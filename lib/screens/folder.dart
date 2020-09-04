@@ -16,7 +16,7 @@ class Folder extends StatefulWidget {
   Folder({
     Key key,
     @required this.title,
-    @required this.path,
+    this.path,
   }) : super(key: key);
 
   @override
@@ -26,8 +26,7 @@ class Folder extends StatefulWidget {
 class _FolderState extends State<Folder> with WidgetsBindingObserver {
   String path;
   List<String> paths = List();
-  List<Recordings> listDb = List();
-  List<dynamic> files = List();
+  List<Recordings> files = List();
   bool showHidden = false;
 
   @override
@@ -48,37 +47,26 @@ class _FolderState extends State<Folder> with WidgetsBindingObserver {
       showHidden = false;
     });
     for (FileSystemEntity file in l) {
-      if (!showHidden) {
-        if (!pathlib.basename(file.path).startsWith(".")) {
-          setState(() {
-            files.add(file);
-          });
-        }
-      } else {
-        setState(() {
-          files.add(file);
-        });
-      }
-    }
-    List<Recordings> recordings = [];
-    listDb = await DBProvider.db.listRecordings();
-    files.forEach((element) {
-      var title = pathlib.basename(element.path);
-      recordings.add(recordingsFromJson({
+      var title = pathlib.basename(file.path);
+
+      files.add(recordingsFromJson({
         'title': title,
+        'path': file.path,
         'isSynced': false,
-        'createdAt': new DateTime.now()
+        'createdAt': new DateTime.now(),
+        'size': FileUtils.formatBytes(
+            file == null ? 678476 : File(file.path).lengthSync(), 2),
+        'formatedTime': file == null
+            ? "Test"
+            : FileUtils.formatTime(
+                File(file.path).lastModifiedSync().toIso8601String()),
       }));
-    });
-    DBProvider.db.addRecordings(recordings);
-    files = FileUtils.sortList(
-        files, Provider.of<CategoryProvider>(context, listen: false).sort);
-//    files.sort((f1, f2) => pathlib.basename(f1.path).toLowerCase().compareTo(pathlib.basename(f2.path).toLowerCase()));
-//    files.sort((f1, f2) => f1.toString().split(":")[0].toLowerCase().compareTo(f2.toString().split(":")[0].toLowerCase()));
-//    files.sort((f1, f2) => FileSystemEntity.isDirectorySync(f1.path) ==
-//        FileSystemEntity.isDirectorySync(f2.path)
-//        ? 0
-//        : 1);
+    }
+    try {
+      await DBProvider.db.addRecordings(files);
+    } catch (exception) {}
+    files = await DBProvider.db.listRecordings();
+    setState(() {});
   }
 
   @override
@@ -117,16 +105,15 @@ class _FolderState extends State<Folder> with WidgetsBindingObserver {
                 child: Text("There's nothing here"),
               )
             : ListView.separated(
-                padding: EdgeInsets.only(left: 20),
                 itemCount: files.length,
                 itemBuilder: (BuildContext context, int index) {
-                  FileSystemEntity file = files[index];
-                  var dbElement = listDb.length > 0
-                      ? listDb.firstWhere((dropdown) =>
-                          dropdown.title == pathlib.basename(file.path))
-                      : false;
-                  return FileItem(
-                      file: file, isSynced: dbElement == false ? false : true);
+                  dynamic file = files[index];
+
+                  return Ink(
+                      color: file.isSynced == true
+                          ? Color.fromRGBO(217, 247, 190, 1)
+                          : Color.fromRGBO(255, 204, 199, 1),
+                      child: FileItem(file: file));
                 },
                 separatorBuilder: (BuildContext context, int index) {
                   return Stack(

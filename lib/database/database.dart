@@ -29,7 +29,10 @@ class DBProvider {
       await db.execute("CREATE TABLE recordings ("
           "id TEXT PRIMARY KEY,"
           "title TEXT UNIQUE,"
+          "path TEXT UNIQUE,"
           "isSynced BOOLEAN,"
+          "size TEXT,"
+          "formatedTime TEXT,"
           "createdAt CURRENT_TIMESTAMP"
           ")");
     });
@@ -47,14 +50,20 @@ class DBProvider {
       buffer.write("', '");
       buffer.write(recording.title);
       buffer.write("', '");
+      buffer.write(recording.path);
+      buffer.write("', '");
       buffer.write(false);
+      buffer.write("', '");
+      buffer.write(recording.size);
+      buffer.write("', '");
+      buffer.write(recording.formatedTime);
       buffer.write("', '");
       buffer.write(DateTime.now());
       buffer.write("')");
     });
-    var raw = await db
-        .rawInsert("INSERT Into recordings (id,title,isSynced,createdAt)"
-            " VALUES ${buffer.toString()}");
+    var raw = await db.rawInsert(
+        "INSERT Into recordings (id,title,path,isSynced,size,formatedTime,createdAt)"
+        " VALUES ${buffer.toString()}");
     return raw;
   }
 
