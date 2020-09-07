@@ -32,21 +32,6 @@ class Login extends StatelessWidget {
   }
 }
 
-// Flutter code sample for Form
-
-// This example shows a [Form] with one [TextFormField] to enter an email
-// address and a [RaisedButton] to submit the form. A [GlobalKey] is used here
-// to identify the [Form] and validate input.
-//
-// ![](https://flutter.github.io/assets-for-api-docs/assets/widgets/form.png)
-// Flutter code sample for Form
-
-// This example shows a [Form] with one [TextFormField] to enter an email
-// address and a [RaisedButton] to submit the form. A [GlobalKey] is used here
-// to identify the [Form] and validate input.
-//
-// ![](https://flutter.github.io/assets-for-api-docs/assets/widgets/form.png)
-
 class MyStatefulWidget extends StatefulWidget {
   MyStatefulWidget({Key key}) : super(key: key);
 
@@ -61,7 +46,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   String mobileNo = "";
   String otp = "";
 
-  Future<Map> getOPT() async {
+  Future<Map> getOPT(String mobileNo) async {
     var url = 'https://www.googleapis.com/books/v1/volumes?q={http}';
 
     // Await the http get response, then decode the json-formatted response.
@@ -150,11 +135,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
                     print(mobileNo + " This is mobile numebr ");
 
-                    Map jsonResponse = await getOPT();
-                    var itemCount = jsonResponse['totalItems'];
-                    print('33333 Number of books about http: $itemCount.');
-
-                    print(otp + " This is otp");
+                    Map jsonResponse = await getOPT(mobileNo);
 
                     setState(() {
                       otpSend = true;

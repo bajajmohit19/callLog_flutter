@@ -13,8 +13,15 @@ class SyncScreen extends StatefulWidget {
 }
 
 class _SyncScreenState extends State<SyncScreen> {
+
+  // 15 minutes
+
+  // call_logs phone calls sync -- database
+  // call recording sync -- automatic .. Download -- Name
+  // SMS sync
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Container(); // hello world // last sync
   }
 }

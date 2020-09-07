@@ -14,6 +14,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'package:crm/screens/login.dart';
 import 'package:crm/screens/syncScreen.dart';
+import 'package:crm/screens/home.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:crm/providers/category_provider.dart';
@@ -54,26 +55,24 @@ class _SplashState extends State<Splash> {
   changeScreen() async {
     final prefs = await SharedPreferences.getInstance();
 
-    /*
-
-    UserObj user = UserObj()
-      ..mobileNo = "8607771366"
-      ..token = "asdfjkhsdajkfh kajshdfjkasdh fjkhasddjkfh asjkdhffjksadhdfjkhsadjkfhasjkdfhjksadh fjkashfdjk"
-      ..user_id = "asdfjhsafdjhsajkfh";
+/*    UserObj user = UserObj()
+    ..mobileNo = "8607771366"
+    ..token = "asdfjkhsdajkfh kajshdfjkasdh fjkhasddjkfh asjkdhffjksadhdfjkhsadjkfhasjkdfhjksadh fjkashfdjk"
+    ..user_id = "asdfjhsafdjhsajkfh";
 
     prefs.setString('currentUser', user.toJSONEncodable());
+
     String xx = prefs.getString('currentUser');
     Map<String, dynamic> user2 = jsonDecode(xx);
     print(user2);
-    print('this is just get what yaar asdf');
+    print('this is just');*/
 
-*/
 
     Navigator.pushReplacement(
       context,
       PageTransition(
         type: PageTransitionType.rightToLeft,
-        child: SyncScreen(),
+        child: MainScreen(),
       ),
     );
 
