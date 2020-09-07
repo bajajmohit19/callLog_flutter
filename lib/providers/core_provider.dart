@@ -3,9 +3,15 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class CoreProvider extends ChangeNotifier {
   bool loading = false;
+  bool globalLoader = false;
 
   void setLoading(value) {
     loading = value;
+    notifyListeners();
+  }
+
+  void setGlobalLoading(value) {
+    globalLoader = value;
     notifyListeners();
   }
 

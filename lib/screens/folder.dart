@@ -2,12 +2,46 @@ import 'dart:io';
 import 'dart:core';
 import 'package:crm/database/RecordingsModel.dart';
 import 'package:crm/providers/category_provider.dart';
+import 'package:crm/util/consts.dart';
 import 'package:crm/util/file_utils.dart';
 import 'package:crm/widgets/file_item.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as pathlib;
 import 'package:provider/provider.dart';
 import 'package:crm/database/database.dart';
+import 'package:crm/screens/call_logs.dart';
+
+class SyncLogs extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+            flexibleSpace: new Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            TabBar(
+              indicator: BoxDecoration(color: Constants.lightPrimary),
+              labelStyle: TextStyle(color: Colors.white),
+              unselectedLabelColor: Constants.lightAccent,
+              tabs: [
+                Tab(icon: Icon(Icons.directions_car)),
+                Tab(icon: Icon(Icons.directions_transit)),
+              ],
+            )
+          ],
+        )),
+        body: TabBarView(
+          children: [
+            Folder(title: "Calls"),
+            CallLogsList(),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class Folder extends StatefulWidget {
   final String title;
@@ -110,7 +144,6 @@ class _FolderState extends State<Folder> with WidgetsBindingObserver {
                 itemCount: files.length,
                 itemBuilder: (BuildContext context, int index) {
                   dynamic file = files[index];
-
                   return FileItem(file: file);
                 },
                 separatorBuilder: (BuildContext context, int index) {
