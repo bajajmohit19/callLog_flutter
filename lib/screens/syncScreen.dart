@@ -85,6 +85,7 @@ class _SyncScreenState extends State<SyncScreen> {
   @override
   void initState() {
     super.initState();
+    // syncing timer
     Timer.periodic(new Duration(minutes: 1), (timer) {
       syncRecordings();
       syncCallLogs();
