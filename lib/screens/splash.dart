@@ -11,7 +11,6 @@ import 'package:loading_overlay/loading_overlay.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-
 import 'package:crm/screens/login.dart';
 import 'package:crm/screens/syncScreen.dart';
 import 'package:crm/screens/home.dart';
@@ -67,17 +66,6 @@ class _SplashState extends State<Splash> {
     print(user2);
     print('this is just');*/
 
-
-    Navigator.pushReplacement(
-      context,
-      PageTransition(
-        type: PageTransitionType.rightToLeft,
-        child: MainScreen(),
-      ),
-    );
-
-    return;
-
     PermissionStatus permission = await PermissionHandler()
         .checkPermissionStatus(PermissionGroup.storage);
     if (permission != PermissionStatus.granted) {
@@ -106,6 +94,16 @@ class _SplashState extends State<Splash> {
         ),
       );
     }
+
+    Navigator.pushReplacement(
+      context,
+      PageTransition(
+        type: PageTransitionType.rightToLeft,
+        child: SyncScreen(),
+      ),
+    );
+
+    return;
   }
 
   @override

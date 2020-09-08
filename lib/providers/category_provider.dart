@@ -19,7 +19,7 @@ class CategoryProvider extends ChangeNotifier {
     audio.clear();
     List<Directory> storages = await FileUtils.getStorageList();
     storages.forEach((dir) {
-      String path = dir.path + "Call";
+      String path = dir.path + "Download";
       if (Directory(path).existsSync()) {
         List<FileSystemEntity> files =
             FileUtils.getAllFilesInPath(path, showHidden: false);

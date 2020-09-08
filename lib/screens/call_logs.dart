@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:call_log/call_log.dart';
+import 'package:crm/database/database.dart';
+import 'package:crm/database/CallLogsModel.dart';
 
 class CallLogsList extends StatefulWidget {
   @override
@@ -51,6 +53,19 @@ class _CallLogsListState extends State<CallLogsList> {
               child: RaisedButton(
                 onPressed: () async {
                   var result = await CallLog.query(dateFrom: from);
+                  List<CallLogs> logs = List();
+                  result.forEach((element) {
+                    logs.add(callLogsFromJson({
+                      'dialedNumber': element.number,
+                      'formatedDialedNumber': element.formattedNumber,
+                      'isSynced': false,
+                      'duration': element.duration,
+                      'callingTime': new DateTime.fromMillisecondsSinceEpoch(
+                          element.timestamp),
+                      'createdAt': new DateTime.now()
+                    }));
+                  });
+                  DBProvider.db.addCallLogs(logs);
                   setState(() {
                     _callLogEntries = result;
                   });

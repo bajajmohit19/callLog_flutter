@@ -1,11 +1,20 @@
 import 'dart:convert';
+import 'dart:io';
 
 Recordings recordingsFromJson(jsonData) {
   return Recordings.fromMap(jsonData);
 }
 
 String recordingsToJson(Recordings data) {
-  final dyn = data.toMap();
+  var dyn = data.toMap();
+  dyn.forEach((key, value) {
+    if (value is DateTime) {
+      dyn[key] = value.toString();
+    } else if (key == 'path') {
+      final bytes = new File(value).readAsBytesSync();
+      dyn['file'] = base64Encode(bytes);
+    }
+  });
   return json.encode(dyn);
 }
 
@@ -43,6 +52,7 @@ class Recordings {
         "isSynced": isSynced,
         "size": size,
         "formatedTime": formatedTime,
-        "createdAt": createdAt
+        "createdAt": createdAt,
+        "file": path
       };
 }

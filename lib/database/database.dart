@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:crm/database/RecordingsModel.dart';
+import 'package:crm/database/CallLogsModel.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
@@ -35,16 +36,24 @@ class DBProvider {
           "formatedTime TEXT,"
           "createdAt CURRENT_TIMESTAMP"
           ")");
+      await db.execute("CREATE TABLE callLogs ("
+          "id TEXT PRIMARY KEY,"
+          "dialedNumber TEXT,"
+          "formatedDialedNumber TEXT,"
+          "isSynced BOOLEAN,"
+          "duration INT,"
+          "callerNumber TEXT,"
+          "callingTime TEXT,"
+          "createdAt CURRENT_TIMESTAMP,"
+          "UNIQUE(dialedNumber, callingTime, duration)"
+          ")");
     });
   }
 
   addRecordings(List<Recordings> recordings) async {
     final db = await database;
-    var buffer = new StringBuffer();
-    recordings.forEach((recording) {
-      if (buffer.isNotEmpty) {
-        buffer.write(",\n");
-      }
+    recordings.forEach((recording) async {
+      var buffer = new StringBuffer();
       buffer.write("('");
       buffer.write(uuid.v4());
       buffer.write("', '");
@@ -60,16 +69,26 @@ class DBProvider {
       buffer.write("', '");
       buffer.write(DateTime.now());
       buffer.write("')");
+      await db.rawInsert(
+          "INSERT Into recordings (id,title,path,isSynced,size,formatedTime,createdAt)"
+          " VALUES ${buffer.toString()}");
     });
-    var raw = await db.rawInsert(
-        "INSERT Into recordings (id,title,path,isSynced,size,formatedTime,createdAt)"
-        " VALUES ${buffer.toString()}");
-    return raw;
+    // if (buffer.length > 0) {
+    // var raw = await db.rawInsert(
+    // "INSERT Into recordings (id,title,path,isSynced,size,formatedTime,createdAt)"
+    // " VALUES ${buffer.toString()}");
+    // return raw;
+    // }
+    return 0;
   }
 
-  listRecordings() async {
+  listRecordings({bool unsynced = false}) async {
     final db = await database;
-    var res = await db.rawQuery("SELECT * FROM recordings");
+    String query = "SELECT * FROM recordings";
+    if (unsynced == true) {
+      query += " WHERE isSynced=0";
+    }
+    var res = await db.rawQuery(query);
     List<Recordings> list =
         res.isNotEmpty ? res.map((c) => Recordings.fromMap(c)).toList() : [];
     return list;
@@ -90,5 +109,68 @@ class DBProvider {
         "UPDATE recordings SET isSynced = ?  WHERE id IN (${arr.join(',')})",
         [true, ...ids]);
     return raw;
+  }
+
+  addCallLogs(List<CallLogs> callLogs) async {
+    final db = await database;
+    callLogs.forEach((callLog) async {
+      var buffer = new StringBuffer();
+      buffer.write("('");
+      buffer.write(uuid.v4());
+      buffer.write("', '");
+      buffer.write(callLog.dialedNumber);
+      buffer.write("', '");
+      buffer.write(callLog.formatedDialedNumber);
+      buffer.write("', '");
+      buffer.write(0);
+      buffer.write("', '");
+      buffer.write(callLog.duration);
+      buffer.write("', '");
+      buffer.write(callLog.callerNumber);
+      buffer.write("', '");
+      buffer.write(callLog.callingTime);
+      buffer.write("', '");
+      buffer.write(DateTime.now());
+      buffer.write("')");
+      await db.rawInsert(
+          "INSERT Into callLogs (id,dialedNumber,formatedDialedNumber,isSynced,duration,callerNumber,callingTime,createdAt)"
+          " VALUES ${buffer.toString()}");
+    });
+    // if (buffer.length > 0) {
+    //   var raw = await db.rawInsert(
+    //       "INSERT Into callLogs (id,dialedNumber,formatedDialedNumber,isSynced,duration,callerNumber,callingTime,createdAt)"
+    //       " VALUES ${buffer.toString()}");
+    //   return raw;
+    // }
+    return 0;
+  }
+
+  setCallLogsSync(List<dynamic> callLogs) async {
+    final db = await database;
+    List arr = [];
+    List ids = [];
+    callLogs.forEach((callLog) {
+      // if (buffer.isNotEmpty) {
+      //   buffer.write(",\n");
+      // }
+      arr.add('?');
+      ids.add(callLog.id);
+    });
+    var raw = await db.rawUpdate(
+        "UPDATE callLogs SET isSynced = ?  WHERE id IN (${arr.join(',')})",
+        [true, ...ids]);
+    return raw;
+  }
+
+  listCallLogs({bool unsynced = false}) async {
+    final db = await database;
+    String query = "SELECT * FROM callLogs";
+    if (unsynced == true) {
+      query += " WHERE isSynced=0";
+    }
+    var res = await db.rawQuery(query);
+    List<CallLogs> list =
+        res.isNotEmpty ? res.map((c) => CallLogs.fromMap(c)).toList() : [];
+    return list;
   }
 }

@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 class Constants {
   //App related strings
   static String appName = "Sales CRM";
+  //development
+  static String apiUrl = "http://localhost:8083";
+  //production
+  // static String apiUrl = "https://sales-r.scizers.com";
 
   //Colors for theme
   static Color lightPrimary = Color(0xff025dfa);
