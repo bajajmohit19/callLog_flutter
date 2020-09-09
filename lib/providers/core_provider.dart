@@ -1,3 +1,4 @@
+import 'package:crm/util/consts.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:crm/database/CallLogsModel.dart';
@@ -50,7 +51,7 @@ class CoreProvider extends ChangeNotifier {
     // Await the http get response, then decode the json-formatted response.
     setGlobalLoading(true);
     var response = await http.post(
-        new Uri.http("192.168.43.97:8083", "/sync/recordings"),
+        new Uri.http(Constants.apiUrl, "/sync/recordings"),
         body: body,
         headers: {"Content-Type": "application/json"});
     setGlobalLoading(false);
@@ -77,7 +78,7 @@ class CoreProvider extends ChangeNotifier {
     // Await the http get response, then decode the json-formatted response.
     setGlobalLoading(true);
     var response = await http.post(
-        new Uri.http("192.168.43.97:8083", "/sync/callLogs"),
+        new Uri.http(Constants.apiUrl, "/sync/callLogs"),
         body: body,
         headers: {"Content-Type": "application/json"});
     setGlobalLoading(false);

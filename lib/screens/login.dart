@@ -1,3 +1,5 @@
+import 'package:crm/screens/splash.dart';
+import 'package:crm/screens/syncScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:crm/providers/core_provider.dart';
 import 'package:crm/util/consts.dart';
@@ -6,6 +8,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:loading_overlay/loading_overlay.dart';
+import 'package:page_transition/page_transition.dart';
+
+class UserObj {
+  String user_id;
+  String mobileNo;
+  String token;
+
+  UserObj({this.user_id, this.mobileNo, this.token});
+
+  toJSONEncodable() {
+    Map<String, dynamic> m = new Map();
+    m['user_id'] = user_id;
+    m['mobileNo'] = mobileNo;
+    m['token'] = token;
+    return jsonEncode(m);
+  }
+}
 
 class Login extends StatelessWidget {
   @override
@@ -46,26 +65,67 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   String mobileNo = "";
   String otp = "";
 
-  Future<Map> getOPT(String mobileNo) async {
-    var url = 'https://www.googleapis.com/books/v1/volumes?q={http}';
+  Future<dynamic> getOPT(String mobileNo) async {
+    // var url = 'https://www.googleapis.com/books/v1/volumes?q={http}';
 
     // Await the http get response, then decode the json-formatted response.
     Provider.of<CoreProvider>(context, listen: false).setGlobalLoading(true);
-
-    var response = await http.get(url);
+    var body = jsonEncode({'mobile': mobileNo});
+    var response = await http.post(
+        new Uri.http(Constants.apiUrl, "/loginWithOtp"),
+        body: body,
+        headers: {"Content-Type": "application/json"});
 
     Provider.of<CoreProvider>(context, listen: false).setGlobalLoading(false);
 
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
-      var itemCount = jsonResponse['totalItems'];
-      Map parse = jsonResponse;
-      print('Number of books about http: $itemCount.');
-      return parse;
+      if (jsonResponse['error'] == false) {
+        return true;
+      }
+      // var itemCount = jsonResponse['totalItems'];
+      // Map parse = jsonResponse;
+      // print('Number of books about http: $itemCount.');
+      return false;
     } else {
-      Map test = {};
-      print('Request failed with status: ${response.statusCode}.');
-      return test;
+      return false;
+    }
+  }
+
+  Future<dynamic> verifyOPT(String mobileNo, String otp) async {
+    // var url = 'https://www.googleapis.com/books/v1/volumes?q={http}';
+
+    // Await the http get response, then decode the json-formatted response.
+    Provider.of<CoreProvider>(context, listen: false).setGlobalLoading(true);
+    var body = jsonEncode({'mobile': mobileNo, 'otp': otp});
+    var response = await http.post(new Uri.http(Constants.apiUrl, "/verifyOtp"),
+        body: body, headers: {"Content-Type": "application/json"});
+
+    Provider.of<CoreProvider>(context, listen: false).setGlobalLoading(false);
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+      if (jsonResponse['error'] == false) {
+        final prefs = await SharedPreferences.getInstance();
+        UserObj user = UserObj()
+          ..mobileNo = jsonResponse['user']['mobile']
+          ..token = jsonResponse['token']
+          ..user_id = jsonResponse['user']['_id'];
+        prefs.setString('currentUser', user.toJSONEncodable());
+        Navigator.pushReplacement(
+          context,
+          PageTransition(
+            type: PageTransitionType.rightToLeft,
+            child: Splash(),
+          ),
+        );
+      }
+      // var itemCount = jsonResponse['totalItems'];
+      // Map parse = jsonResponse;
+      // print('Number of books about http: $itemCount.');
+      return false;
+    } else {
+      return false;
     }
   }
 
@@ -133,13 +193,17 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
                     _formKey.currentState.save();
 
-                    print(mobileNo + " This is mobile numebr ");
-
-                    Map jsonResponse = await getOPT(mobileNo);
-
-                    setState(() {
-                      otpSend = true;
-                    });
+                    // print(mobileNo + " This is mobile numebr ");
+                    if (otpSend == true) {
+                      await verifyOPT(mobileNo, otp);
+                    } else {
+                      bool resp = await getOPT(mobileNo);
+                      if (resp == true) {
+                        setState(() {
+                          otpSend = true;
+                        });
+                      }
+                    }
 
                     Scaffold.of(context).showSnackBar(
                         SnackBar(content: Text('Processing Data')));

@@ -54,17 +54,26 @@ class _SplashState extends State<Splash> {
   changeScreen() async {
     final prefs = await SharedPreferences.getInstance();
 
-/*    UserObj user = UserObj()
-    ..mobileNo = "8607771366"
-    ..token = "asdfjkhsdajkfh kajshdfjkasdh fjkhasddjkfh asjkdhffjksadhdfjkhsadjkfhasjkdfhjksadh fjkashfdjk"
-    ..user_id = "asdfjhsafdjhsajkfh";
+    //  UserObj user = UserObj()
+    //   ..mobileNo = "8607771366"
+    //   ..token = "asdfjkhsdajkfh kajshdfjkasdh fjkhasddjkfh asjkdhffjksadhdfjkhsadjkfhasjkdfhjksadh fjkashfdjk"
+    //   ..user_id = "asdfjhsafdjhsajkfh";
 
-    prefs.setString('currentUser', user.toJSONEncodable());
+    //   prefs.setString('currentUser', user.toJSONEncodable());
 
     String xx = prefs.getString('currentUser');
+    if (xx == null) {
+      Navigator.pushReplacement(
+        context,
+        PageTransition(
+          type: PageTransitionType.rightToLeft,
+          child: Login(),
+        ),
+      );
+    }
     Map<String, dynamic> user2 = jsonDecode(xx);
     print(user2);
-    print('this is just');*/
+    print('this is just');
 
     PermissionStatus permission = await PermissionHandler()
         .checkPermissionStatus(PermissionGroup.storage);
@@ -94,14 +103,6 @@ class _SplashState extends State<Splash> {
         ),
       );
     }
-
-    Navigator.pushReplacement(
-      context,
-      PageTransition(
-        type: PageTransitionType.rightToLeft,
-        child: SyncScreen(),
-      ),
-    );
 
     return;
   }

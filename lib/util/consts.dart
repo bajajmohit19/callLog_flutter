@@ -4,7 +4,7 @@ class Constants {
   //App related strings
   static String appName = "Sales CRM";
   //development
-  static String apiUrl = "http://localhost:8083";
+  static String apiUrl = "192.168.43.97:8083";
   //production
   // static String apiUrl = "https://sales-r.scizers.com";
 
