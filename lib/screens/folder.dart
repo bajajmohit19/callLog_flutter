@@ -110,7 +110,7 @@ class _FolderState extends State<Folder> with WidgetsBindingObserver {
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
-        body: Provider.of<CoreProvider>(context, listen: false).loading
+        body: Provider.of<CoreProvider>(context, listen: true).loading
             ? Center(
                 child: CircularProgressIndicator(),
               )
