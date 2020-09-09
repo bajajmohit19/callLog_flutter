@@ -86,11 +86,11 @@ class _SyncScreenState extends State<SyncScreen> {
   void initState() {
     super.initState();
     // syncing timer
-    Timer.periodic(new Duration(minutes: 1), (timer) {
-      syncRecordings();
-      syncCallLogs();
-      debugPrint(timer.tick.toString());
-    });
+    // Timer.periodic(new Duration(minutes: 1), (timer) {
+    //   syncRecordings();
+    //   syncCallLogs();
+    //   debugPrint(timer.tick.toString());
+    // });
 
     Navigator.pushReplacement(
       context,

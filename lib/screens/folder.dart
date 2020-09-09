@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:core';
 import 'package:crm/database/RecordingsModel.dart';
 import 'package:crm/providers/category_provider.dart';
+import 'package:crm/providers/core_provider.dart';
 import 'package:crm/util/consts.dart';
 import 'package:crm/util/file_utils.dart';
 import 'package:crm/widgets/file_item.dart';
@@ -71,38 +72,10 @@ class _FolderState extends State<Folder> with WidgetsBindingObserver {
   }
 
   getFiles() async {
-    // Directory dir = Directory('${path}/Download');
-    await Provider.of<CategoryProvider>(context, listen: false)
-        .getAudios('audio');
-    List<FileSystemEntity> l =
-        Provider.of<CategoryProvider>(context, listen: false).audio;
     files.clear();
-    setState(() {
-      showHidden = false;
-    });
-    for (FileSystemEntity file in l) {
-      var title = pathlib.basename(file.path);
-
-      files.add(recordingsFromJson({
-        'title': title,
-        'path': file.path,
-        'isSynced': false,
-        'createdAt': new DateTime.now(),
-        'size': FileUtils.formatBytes(
-            file == null ? 678476 : File(file.path).lengthSync(), 2),
-        'formatedTime': file == null
-            ? "Test"
-            : FileUtils.formatTime(
-                File(file.path).lastModifiedSync().toIso8601String()),
-      }));
-    }
-    try {
-      await DBProvider.db.addRecordings(files);
-    } catch (exception) {}
-    files = await DBProvider.db.listRecordings();
-    files = files.reversed.toList();
-    // DBProvider.db.setRecordingsSync();
-    setState(() {});
+    await Provider.of<CoreProvider>(context, listen: false).getNewFiles();
+    files = Provider.of<CoreProvider>(context, listen: false).files;
+    // setState(() {});
   }
 
   @override
@@ -137,31 +110,35 @@ class _FolderState extends State<Folder> with WidgetsBindingObserver {
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
-        body: files.isEmpty
+        body: Provider.of<CoreProvider>(context, listen: false).loading
             ? Center(
-                child: Text("There's nothing here"),
+                child: CircularProgressIndicator(),
               )
-            : ListView.separated(
-                itemCount: files.length,
-                itemBuilder: (BuildContext context, int index) {
-                  dynamic file = files[index];
-                  return FileItem(file: file);
-                },
-                separatorBuilder: (BuildContext context, int index) {
-                  return Stack(
-                    children: <Widget>[
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Container(
-                          height: 1,
-                          color: Theme.of(context).dividerColor,
-                          width: MediaQuery.of(context).size.width - 70,
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
+            : files.isEmpty
+                ? Center(
+                    child: Text("There's nothing here"),
+                  )
+                : ListView.separated(
+                    itemCount: files.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      dynamic file = files[index];
+                      return FileItem(file: file);
+                    },
+                    separatorBuilder: (BuildContext context, int index) {
+                      return Stack(
+                        children: <Widget>[
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Container(
+                              height: 1,
+                              color: Theme.of(context).dividerColor,
+                              width: MediaQuery.of(context).size.width - 70,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
       ),
     );
   }
