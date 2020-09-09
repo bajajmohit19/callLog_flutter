@@ -134,9 +134,9 @@ class CoreProvider extends ChangeNotifier {
                 File(file.path).lastModifiedSync().toIso8601String()),
       }));
     }
-    // try {
-    //   await DBProvider.db.addRecordings(files);
-    // } catch (exception) {}
+    try {
+      await DBProvider.db.addRecordings(files);
+    } catch (exception) {}
     // files = await DBProvider.db.listRecordings();
     files = files.reversed.toList();
     // DBProvider.db.setRecordingsSync();
