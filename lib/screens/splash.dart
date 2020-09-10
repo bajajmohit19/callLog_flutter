@@ -3,39 +3,36 @@ import 'dart:convert';
 
 // import 'package:crm/screens/layout.dart';
 import 'package:crm/screens/home.dart';
+import 'package:crm/screens/syncScreen.dart';
 import 'package:crm/util/consts.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:crm/screens/login.dart';
-import 'package:crm/screens/syncScreen.dart';
-import 'package:crm/screens/home.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:crm/providers/category_provider.dart';
 
 import 'package:crm/providers/core_provider.dart';
 import 'package:provider/provider.dart';
 
-class UserObj {
-  String user_id;
-  String mobileNo;
-  String token;
+// class UserObj {
+//   String user_id;
+//   String mobileNo;
+//   String token;
 
-  UserObj({this.user_id, this.mobileNo, this.token});
+//   UserObj({this.user_id, this.mobileNo, this.token});
 
-  toJSONEncodable() {
-    Map<String, dynamic> m = new Map();
-    m['user_id'] = user_id;
-    m['mobileNo'] = mobileNo;
-    m['token'] = token;
-    return jsonEncode(m);
-  }
-}
+//   toJSONEncodable() {
+//     Map<String, dynamic> m = new Map();
+//     m['user_id'] = user_id;
+//     m['mobileNo'] = mobileNo;
+//     m['token'] = token;
+//     return jsonEncode(m);
+//   }
+// }
 
 class Splash extends StatefulWidget {
   @override
@@ -71,15 +68,13 @@ class _SplashState extends State<Splash> {
         ),
       );
     }
-    Map<String, dynamic> user2 = jsonDecode(xx);
-    print(user2);
-    print('this is just');
+    // Map<String, dynamic> user2 = jsonDecode(xx);
 
     PermissionStatus permission = await PermissionHandler()
         .checkPermissionStatus(PermissionGroup.storage);
     if (permission != PermissionStatus.granted) {
       PermissionHandler()
-          .requestPermissions([PermissionGroup.storage])
+          .requestPermissions([PermissionGroup.storage, PermissionGroup.phone])
           .then((v) {})
           .then((v) async {
             PermissionStatus permission1 = await PermissionHandler()
@@ -89,7 +84,7 @@ class _SplashState extends State<Splash> {
                 context,
                 PageTransition(
                   type: PageTransitionType.rightToLeft,
-                  child: MainScreen(),
+                  child: SyncScreen(),
                 ),
               );
             }
@@ -99,7 +94,7 @@ class _SplashState extends State<Splash> {
         context,
         PageTransition(
           type: PageTransitionType.rightToLeft,
-          child: MainScreen(),
+          child: SyncScreen(),
         ),
       );
     }
@@ -110,7 +105,6 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
-    // SystemChrome.setEnabledSystemUIOverlays([]);
     startTimeout();
   }
 

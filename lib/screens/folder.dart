@@ -73,8 +73,10 @@ class _FolderState extends State<Folder> with WidgetsBindingObserver {
 
   getFiles() async {
     files.clear();
-    await Provider.of<CoreProvider>(context, listen: false).getNewFiles();
-    files = Provider.of<CoreProvider>(context, listen: false).files;
+    Provider.of<CoreProvider>(context, listen: false).getLogs();
+
+    // await Provider.of<CoreProvider>(context, listen: false).getNewFiles();
+    // files = Provider.of<CoreProvider>(context, listen: false).dbFiles;
     // setState(() {});
   }
 

@@ -146,6 +146,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             TextFormField(
               textInputAction: TextInputAction.next,
               autofocus: true,
+              enabled: !otpSend,
               onSaved: (String value) {
                 mobileNo = value;
               },
@@ -181,50 +182,62 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: RaisedButton(
-                color: Colors.blue,
-                textColor: Colors.white,
-                onPressed: () async {
-                  // Validate will return true if the form is valid, or false if
-                  // the form is invalid.
-                  if (_formKey.currentState.validate()) {
-                    // Process data.
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      //Padding between these please
+                      Padding(
+                        padding: EdgeInsets.only(right: 10),
+                        child: RaisedButton(
+                          color: Colors.blue,
+                          textColor: Colors.white,
+                          onPressed: () async {
+                            // Validate will return true if the form is valid, or false if
+                            // the form is invalid.
+                            if (_formKey.currentState.validate()) {
+                              // Process data.
 
-                    _formKey.currentState.save();
+                              _formKey.currentState.save();
 
-                    // print(mobileNo + " This is mobile numebr ");
-                    if (otpSend == true) {
-                      await verifyOPT(mobileNo, otp);
-                    } else {
-                      bool resp = await getOPT(mobileNo);
-                      if (resp == true) {
-                        setState(() {
-                          otpSend = true;
-                        });
-                      }
-                    }
+                              // print(mobileNo + " This is mobile numebr ");
+                              if (otpSend == true) {
+                                await verifyOPT(mobileNo, otp);
+                              } else {
+                                bool resp = await getOPT(mobileNo);
+                                if (resp == true) {
+                                  setState(() {
+                                    otpSend = true;
+                                  });
+                                }
+                              }
 
-                    Scaffold.of(context).showSnackBar(
-                        SnackBar(content: Text('Processing Data')));
-                  }
-                },
-                child: Text('Submit'),
-              ),
-            ),
-            Visibility(
-              visible: otpSend,
-              child: RaisedButton(
-                color: Colors.blue,
-                textColor: Colors.white,
-                onPressed: () async {
-                  setState(() {
-                    otpSend = false;
-                  });
-                },
-                child: Text('Change Mobile No.'),
-              ),
-            ),
+                              Scaffold.of(context).showSnackBar(
+                                  SnackBar(content: Text('Processing Data')));
+                            }
+                          },
+                          child: Text('Submit'),
+                        ),
+                      ),
+                      Visibility(
+                        visible: otpSend,
+                        child: RaisedButton(
+                          color: Colors.blue,
+                          textColor: Colors.white,
+                          onPressed: () async {
+                            setState(() {
+                              otpSend = false;
+                            });
+                          },
+                          child: Text('Change Mobile No.'),
+                        ),
+                      )
+                    ])),
+            // Visibility(
+            //   visible: otpSend,
+            //   child:
+            // ),
           ],
         ),
       ),

@@ -173,4 +173,18 @@ class DBProvider {
         res.isNotEmpty ? res.map((c) => CallLogs.fromMap(c)).toList() : [];
     return list;
   }
+
+  getlatestDateCallLog() async {
+    final db = await database;
+    String query = "SELECT * FROM callLogs ORDER BY createdAt DESC LIMIT 1";
+    var res = await db.rawQuery(query);
+    var resp = res.length > 0 ? CallLogs.fromMap(res.first) : null;
+    return resp;
+  }
+
+  reset() async {
+    final db = await database;
+    await db.rawQuery("DELETE * FROM callLogs");
+    await db.rawQuery("DELETE * FROM recordings");
+  }
 }
