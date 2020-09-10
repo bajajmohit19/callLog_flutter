@@ -184,7 +184,7 @@ class DBProvider {
 
   reset() async {
     final db = await database;
-    await db.rawQuery("DELETE * FROM callLogs");
-    await db.rawQuery("DELETE * FROM recordings");
+    await db.rawQuery("DELETE FROM callLogs");
+    await db.rawQuery("DELETE FROM recordings");
   }
 }
