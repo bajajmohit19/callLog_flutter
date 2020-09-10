@@ -16,6 +16,34 @@ class CallLogsList extends StatefulWidget {
 class _CallLogsListState extends State<CallLogsList> {
   Iterable<CallLogEntry> _callLogEntries = [];
 
+  getLogs() async {
+    var now = DateTime.now();
+    int from = now.subtract(Duration(days: 7)).millisecondsSinceEpoch;
+    var result = await CallLog.query(dateFrom: from);
+    List<CallLogs> logs = List();
+    result.forEach((element) {
+      logs.add(callLogsFromJson({
+        'dialedNumber': element.number,
+        'formatedDialedNumber': element.formattedNumber,
+        'isSynced': false,
+        'duration': element.duration,
+        'callingTime':
+            new DateTime.fromMillisecondsSinceEpoch(element.timestamp),
+        'createdAt': new DateTime.now()
+      }));
+    });
+    DBProvider.db.addCallLogs(logs);
+    setState(() {
+      _callLogEntries = result;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getLogs();
+  }
+
   @override
   Widget build(BuildContext context) {
     var mono = TextStyle(fontFamily: 'monospace');
@@ -24,7 +52,6 @@ class _CallLogsListState extends State<CallLogsList> {
       children.add(
         Column(
           children: <Widget>[
-            Divider(),
             Text('F. NUMBER  : ${entry.formattedNumber}', style: mono),
             Text('C.M. NUMBER: ${entry.cachedMatchedNumber}', style: mono),
             Text('NUMBER     : ${entry.number}', style: mono),
@@ -34,6 +61,7 @@ class _CallLogsListState extends State<CallLogsList> {
                 'DATE       : ${DateTime.fromMillisecondsSinceEpoch(entry.timestamp)}',
                 style: mono),
             Text('DURATION   :  ${entry.duration}', style: mono),
+            Divider(),
           ],
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -41,41 +69,11 @@ class _CallLogsListState extends State<CallLogsList> {
       );
     });
 
-    var now = DateTime.now();
-    int from = now.subtract(Duration(days: 7)).millisecondsSinceEpoch;
-
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: RaisedButton(
-                onPressed: () async {
-                  var result = await CallLog.query(dateFrom: from);
-                  List<CallLogs> logs = List();
-                  result.forEach((element) {
-                    logs.add(callLogsFromJson({
-                      'dialedNumber': element.number,
-                      'formatedDialedNumber': element.formattedNumber,
-                      'isSynced': false,
-                      'duration': element.duration,
-                      'callingTime': new DateTime.fromMillisecondsSinceEpoch(
-                          element.timestamp),
-                      'createdAt': new DateTime.now()
-                    }));
-                  });
-                  DBProvider.db.addCallLogs(logs);
-                  setState(() {
-                    _callLogEntries = result;
-                  });
-                },
-                child: Text("Get all"),
-              ),
-            ),
-          ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Column(children: children),
           ),
         ],

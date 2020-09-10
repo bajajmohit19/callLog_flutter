@@ -212,6 +212,19 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 child: Text('Submit'),
               ),
             ),
+            Visibility(
+              visible: otpSend,
+              child: RaisedButton(
+                color: Colors.blue,
+                textColor: Colors.white,
+                onPressed: () async {
+                  setState(() {
+                    otpSend = false;
+                  });
+                },
+                child: Text('Change Mobile No.'),
+              ),
+            ),
           ],
         ),
       ),
