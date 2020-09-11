@@ -80,23 +80,27 @@ class _SplashState extends State<Splash> {
             PermissionStatus permission1 = await PermissionHandler()
                 .checkPermissionStatus(PermissionGroup.storage);
             if (permission1 == PermissionStatus.granted) {
-              Navigator.pushReplacement(
-                context,
-                PageTransition(
-                  type: PageTransitionType.rightToLeft,
-                  child: SyncScreen(),
-                ),
-              );
+              if (mounted) {
+                Navigator.pushReplacement(
+                  context,
+                  PageTransition(
+                    type: PageTransitionType.rightToLeft,
+                    child: SyncScreen(),
+                  ),
+                );
+              }
             }
           });
     } else {
-      Navigator.pushReplacement(
-        context,
-        PageTransition(
-          type: PageTransitionType.rightToLeft,
-          child: SyncScreen(),
-        ),
-      );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          PageTransition(
+            type: PageTransitionType.rightToLeft,
+            child: SyncScreen(),
+          ),
+        );
+      }
     }
 
     return;
@@ -105,11 +109,12 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
-    startTimeout();
+    // startTimeout();
   }
 
   @override
   Widget build(BuildContext context) {
+    changeScreen();
     return Consumer<CoreProvider>(
       builder: (BuildContext context, CoreProvider coreProvider, Widget child) {
         return Scaffold(

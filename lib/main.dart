@@ -30,7 +30,7 @@ void callbackDispatcher() {
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Workmanager.initialize(callbackDispatcher, isInDebugMode: true);
+  Workmanager.initialize(callbackDispatcher, isInDebugMode: false);
   Workmanager.registerPeriodicTask("1", sync, frequency: Duration(minutes: 15));
   runApp(
     MultiProvider(

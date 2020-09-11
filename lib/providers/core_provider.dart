@@ -9,13 +9,17 @@ import 'package:crm/util/file_utils.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path/path.dart' as pathlib;
 import 'package:call_log/call_log.dart';
+import 'package:http_parser/http_parser.dart';
 
 import 'dart:io';
 import 'dart:convert';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class CoreProvider extends ChangeNotifier {
   bool loading = false;
   bool globalLoader = false;
+
   // check sync status
   bool recordingSyncing = false;
   bool callsSyncing = false;
@@ -45,8 +49,25 @@ class CoreProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<dynamic> isCurrentUser() async {
+    Map<String, dynamic> userData = new Map();
+
+    final prefs = await SharedPreferences.getInstance();
+    var user = prefs.getString('currentUser');
+    if (user == null) {
+      return false;
+    } else {
+      userData = jsonDecode(user);
+      return userData;
+    }
+  }
+
   syncRecordings() async {
     if (recordingSyncing == true) {
+      return;
+    }
+    var user = await isCurrentUser();
+    if (user == false) {
       return;
     }
     recordingSyncing = true;
@@ -54,32 +75,53 @@ class CoreProvider extends ChangeNotifier {
     List<Recordings> recordings =
         await DBProvider.db.listRecordings(unsynced: true);
 
-    List list = List();
+    // List list = List();
 
-    recordings.forEach((e) {
-      list.add(recordingsToJson(e));
-    });
+    // recordings.forEach((e) {
+    //   list.add(recordingsToJson(e));
+    // });
 
-    // http request
-    var body = jsonEncode({"arr": list});
+    for (var file in recordings) {
+      var item = jsonDecode(recordingsToJson(file));
+      var request = http.MultipartRequest(
+          "POST", new Uri.http(Constants.apiUrl, "/sync/audios"));
 
-    var response = await http.post(
-        new Uri.http(Constants.apiUrl, "/sync/recordings"),
-        body: body,
-        headers: {"Content-Type": "application/json"});
+      request.headers['Content-Encoding'] = "audio/mpeg";
+      request.headers['Authorization'] = 'Bearer ${user['token']}';
+      request.fields["data"] = jsonEncode(item);
+      request.files.add(http.MultipartFile.fromBytes(
+          'file', new File(item['path']).readAsBytesSync(),
+          contentType: MediaType('audio', 'mp3'), filename: item['id']));
+      var response = await request.send();
+      // print(response);
+      if (response.statusCode == 200) {
+        print('Uploaded!');
+        var dataResponse = await http.post(
+            new Uri.http(Constants.apiUrl, "/sync/recordings"),
+            body: jsonEncode({'arr': item}),
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": 'Bearer ${user['token']}'
+            });
 
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body)['data'] as List;
-      List<Recordings> ids =
-          data.map((json) => new Recordings(id: json['id'])).toList();
+        if (dataResponse.statusCode == 200) {
+          var data = jsonDecode(dataResponse.body)['data'] as List;
+          List<Recordings> ids =
+              data.map((json) => new Recordings(id: json['id'])).toList();
 
-      DBProvider.db.setRecordingsSync(ids);
+          DBProvider.db.setRecordingsSync(ids);
+        }
+      }
     }
     recordingSyncing = false;
   }
 
   syncCallLogs() async {
     if (callsSyncing == true) {
+      return;
+    }
+    var user = await isCurrentUser();
+    if (user == false) {
       return;
     }
     callsSyncing = true;
@@ -94,7 +136,10 @@ class CoreProvider extends ChangeNotifier {
     var response = await http.post(
         new Uri.http(Constants.apiUrl, "/sync/callLogs"),
         body: body,
-        headers: {"Content-Type": "application/json"});
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": 'Bearer ${user['token']}'
+        });
 
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body)['data'] as List;
@@ -157,6 +202,15 @@ class CoreProvider extends ChangeNotifier {
   getLogs() async {
     var latestRecord = await DBProvider.db.getlatestDateCallLog();
     // dynamic tt = DateTime.parse(latestRecord.createAt);
+    final prefs = await SharedPreferences.getInstance();
+    Map<String, dynamic> userData = new Map();
+
+    var user = prefs.getString('currentUser');
+    if (user == null) {
+      return false;
+    } else {
+      userData = jsonDecode(user);
+    }
     dbLogs.clear();
     var now = latestRecord == null
         ? DateTime.now().subtract(Duration(days: 7))
@@ -170,6 +224,7 @@ class CoreProvider extends ChangeNotifier {
         'formatedDialedNumber': element.formattedNumber,
         'isSynced': false,
         'duration': element.duration,
+        'callerNumber': userData['mobileNo'],
         'callingTime':
             new DateTime.fromMillisecondsSinceEpoch(element.timestamp),
         'createdAt': new DateTime.now()

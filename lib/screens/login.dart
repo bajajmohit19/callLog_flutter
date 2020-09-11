@@ -3,6 +3,7 @@ import 'package:crm/screens/syncScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:crm/providers/core_provider.dart';
 import 'package:crm/util/consts.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -83,11 +84,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       if (jsonResponse['error'] == false) {
         return true;
       }
-      // var itemCount = jsonResponse['totalItems'];
-      // Map parse = jsonResponse;
-      // print('Number of books about http: $itemCount.');
+      Fluttertoast.showToast(msg: jsonResponse['message']);
       return false;
     } else {
+      Fluttertoast.showToast(msg: 'Something went wrong.');
       return false;
     }
   }
@@ -119,12 +119,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             child: Splash(),
           ),
         );
+        return;
       }
-      // var itemCount = jsonResponse['totalItems'];
-      // Map parse = jsonResponse;
-      // print('Number of books about http: $itemCount.');
+      Fluttertoast.showToast(msg: 'Invalid OTP');
       return false;
     } else {
+      Fluttertoast.showToast(msg: 'Invalid OTP');
       return false;
     }
   }
@@ -213,8 +213,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                 }
                               }
 
-                              Scaffold.of(context).showSnackBar(
-                                  SnackBar(content: Text('Processing Data')));
+                              // Scaffold.of(context).showSnackBar(
+                              // SnackBar(content: Text('Processing Data')));
                             }
                           },
                           child: Text('Submit'),

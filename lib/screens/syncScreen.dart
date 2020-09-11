@@ -96,15 +96,8 @@ class _SyncScreenState extends State<SyncScreen> {
   void initState() {
     super.initState();
     getUser();
-    // CoreProvider().syncRecordings();
-    // CoreProvider().syncCallLogs();
-    // Navigator.pushReplacement(
-    //   context,
-    //   PageTransition(
-    //     type: PageTransitionType.rightToLeft,
-    //     child: MainScreen(),
-    //   ),
-    // );
+    CoreProvider().syncRecordings();
+    CoreProvider().syncCallLogs();
   }
 
   @override
