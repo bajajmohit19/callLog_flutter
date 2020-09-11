@@ -153,10 +153,15 @@ class CoreProvider extends ChangeNotifier {
 
   getAudios(String type) async {
     // setLoading(true);
+    var user = await isCurrentUser();
+    if (user == false) {
+      return;
+    }
     audio.clear();
     List<Directory> storages = await FileUtils.getStorageList();
     storages.forEach((dir) {
-      String path = dir.path + "Download";
+      String path = dir.path +
+          (!!user['recordingPath'] == false ? "Call" : user['recordingPath']);
       if (Directory(path).existsSync()) {
         List<FileSystemEntity> files =
             FileUtils.getAllFilesInPath(path, showHidden: false);
