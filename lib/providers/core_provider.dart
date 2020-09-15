@@ -161,7 +161,7 @@ class CoreProvider extends ChangeNotifier {
     List<Directory> storages = await FileUtils.getStorageList();
     storages.forEach((dir) {
       String path = dir.path +
-          (!!user['recordingPath'] == false ? "Call" : user['recordingPath']);
+          (user['recordingPath'] == null ? "Call" : user['recordingPath']);
       if (Directory(path).existsSync()) {
         List<FileSystemEntity> files =
             FileUtils.getAllFilesInPath(path, showHidden: false);
@@ -185,12 +185,13 @@ class CoreProvider extends ChangeNotifier {
     await getAudios('audio');
     for (FileSystemEntity file in audio) {
       var title = pathlib.basename(file.path);
-
+      var time = new File(file.path).lastModifiedSync();
+      debugPrint('${time}');
       dbFiles.add(recordingsFromJson({
         'title': title,
         'path': file.path,
         'isSynced': false,
-        'createdAt': new DateTime.now(),
+        'createdAt': time,
         'size': FileUtils.formatBytes(
             file == null ? 678476 : File(file.path).lengthSync(), 2),
         'formatedTime': file == null
@@ -218,7 +219,7 @@ class CoreProvider extends ChangeNotifier {
     }
     dbLogs.clear();
     var now = latestRecord == null
-        ? DateTime.now().subtract(Duration(days: 7))
+        ? DateTime.now().subtract(Duration(days: 14))
         : latestRecord.createdAt;
     // tt = tt.millisecondsSinceEpoch;
     int from = now.millisecondsSinceEpoch;
@@ -229,7 +230,7 @@ class CoreProvider extends ChangeNotifier {
         'formatedDialedNumber': element.formattedNumber,
         'isSynced': false,
         'duration': element.duration,
-        'callerNumber': userData['mobileNo'],
+        'roNumber': userData['mobileNo'],
         'callingTime':
             new DateTime.fromMillisecondsSinceEpoch(element.timestamp),
         'createdAt': new DateTime.now()

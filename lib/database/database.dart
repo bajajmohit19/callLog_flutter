@@ -42,7 +42,7 @@ class DBProvider {
           "formatedDialedNumber TEXT,"
           "isSynced BOOLEAN,"
           "duration INT,"
-          "callerNumber TEXT,"
+          "roNumber TEXT,"
           "callingTime TEXT,"
           "createdAt CURRENT_TIMESTAMP,"
           "UNIQUE(dialedNumber, callingTime, duration)"
@@ -67,7 +67,7 @@ class DBProvider {
       buffer.write("', '");
       buffer.write(recording.formatedTime);
       buffer.write("', '");
-      buffer.write(DateTime.now());
+      buffer.write(recording.createdAt);
       buffer.write("')");
       await db.rawInsert(
           "INSERT Into recordings (id,title,path,isSynced,size,formatedTime,createdAt)"
@@ -126,14 +126,14 @@ class DBProvider {
       buffer.write("', '");
       buffer.write(callLog.duration);
       buffer.write("', '");
-      buffer.write(callLog.callerNumber);
+      buffer.write(callLog.roNumber);
       buffer.write("', '");
       buffer.write(callLog.callingTime);
       buffer.write("', '");
       buffer.write(DateTime.now());
       buffer.write("')");
       await db.rawInsert(
-          "INSERT Into callLogs (id,dialedNumber,formatedDialedNumber,isSynced,duration,callerNumber,callingTime,createdAt)"
+          "INSERT Into callLogs (id,dialedNumber,formatedDialedNumber,isSynced,duration,roNumber,callingTime,createdAt)"
           " VALUES ${buffer.toString()}");
     });
     // if (buffer.length > 0) {

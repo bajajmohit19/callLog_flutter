@@ -20,7 +20,7 @@ class CallLogs {
   String formatedDialedNumber;
   bool isSynced;
   int duration;
-  String callerNumber;
+  String roNumber;
   DateTime callingTime;
   DateTime createdAt;
 
@@ -30,7 +30,7 @@ class CallLogs {
       this.formatedDialedNumber,
       this.isSynced,
       this.duration,
-      this.callerNumber,
+      this.roNumber,
       this.callingTime,
       this.createdAt});
 
@@ -40,7 +40,7 @@ class CallLogs {
       formatedDialedNumber: json['formatedDialedNumber'],
       isSynced: json["isSynced"] == 1,
       duration: json["duration"],
-      callerNumber: json["callerNumber"],
+      roNumber: json["roNumber"],
       callingTime: DateTime.parse(json["callingTime"].toString()),
       createdAt: DateTime.parse(json["createdAt"].toString()));
 
@@ -50,7 +50,7 @@ class CallLogs {
         "formatedDialedNumber": formatedDialedNumber,
         "isSynced": isSynced,
         "duration": duration,
-        "callerNumber": callerNumber,
+        "roNumber": roNumber,
         "callingTime": callingTime,
         "createdAt": createdAt
       };
