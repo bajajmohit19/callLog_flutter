@@ -219,7 +219,7 @@ class CoreProvider extends ChangeNotifier {
     }
     dbLogs.clear();
     var now = latestRecord == null
-        ? DateTime.now().subtract(Duration(days: 14))
+        ? DateTime.now().subtract(Duration(days: 7))
         : latestRecord.createdAt;
     // tt = tt.millisecondsSinceEpoch;
     int from = now.millisecondsSinceEpoch;
