@@ -27,7 +27,9 @@ class SyncScreen extends StatefulWidget {
 class _SyncScreenState extends State<SyncScreen> {
   // 15 minutes
   String user;
+  bool isSyncing = false;
   Map<String, dynamic> userData = new Map();
+
   // call_logs phone calls sync -- database
   // call recording sync -- automatic .. Download -- Name
 
@@ -92,6 +94,11 @@ class _SyncScreenState extends State<SyncScreen> {
     );
   }
 
+  syncNow() async {
+    CoreProvider().syncRecordings();
+    CoreProvider().syncCallLogs();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -114,15 +121,25 @@ class _SyncScreenState extends State<SyncScreen> {
             ),
           ),
         ),
-        body: PageView(
-          physics: NeverScrollableScrollPhysics(),
-          // controller: _pageController,
-          // onPageChanged: onPageChanged,
+        body: Column(
           children: <Widget>[
             Center(
               child: Text(
-                'Mobile No. : ${userData['mobileNo']}',
+                'Mobile No.: ${userData['mobileNo']}',
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
+              ),
+            ),
+            Center(
+              child: RaisedButton(
+                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                color: Colors.lightBlue,
+                textColor: Colors.white,
+                onPressed: () => syncNow(),
+                child: Text(
+                  'Sync Now',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                elevation: 5,
               ),
             ),
           ],
