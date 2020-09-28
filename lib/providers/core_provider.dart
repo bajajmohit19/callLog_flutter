@@ -126,28 +126,36 @@ class CoreProvider extends ChangeNotifier {
     }
     callsSyncing = true;
     await getLogs();
-    List<CallLogs> callLogs = await DBProvider.db.listCallLogs(unsynced: true);
+    List<CallLogs> callLogs = List();
     List list = List();
-    callLogs.forEach((e) {
-      list.add(callLogsToJson(e));
-    });
-    var body = jsonEncode({"arr": list});
+    var isEmpty = false;
+    while (isEmpty == false) {
+      callLogs = await DBProvider.db.listCallLogs(unsynced: true);
+      if (callLogs.isEmpty == true) {
+        isEmpty = true;
+      }
+      list.clear();
+      callLogs.forEach((e) {
+        list.add(callLogsToJson(e));
+      });
+      var body = jsonEncode({"arr": list});
 
-    var response = await http.post(
-        new Uri.http(Constants.apiUrl, "/sync/callLogs"),
-        body: body,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": 'Bearer ${user['token']}'
-        });
+      var response = await http.post(
+          new Uri.http(Constants.apiUrl, "/sync/callLogs"),
+          body: body,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": 'Bearer ${user['token']}'
+          });
 
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body)['data'] as List;
-      List<CallLogs> ids =
-          data.map((json) => new CallLogs(id: json['id'])).toList();
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body)['data'] as List;
+        List<CallLogs> ids =
+            data.map((json) => new CallLogs(id: json['id'])).toList();
 
-      DBProvider.db.setCallLogsSync(ids);
-    } else {}
+        DBProvider.db.setCallLogsSync(ids);
+      } else {}
+    }
     callsSyncing = false;
   }
 
