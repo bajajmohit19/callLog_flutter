@@ -23,9 +23,11 @@ class CoreProvider extends ChangeNotifier {
   // check sync status
   bool recordingSyncing = false;
   bool callsSyncing = false;
+
   //recording var
   List<FileSystemEntity> audio = List();
   List<Recordings> dbFiles = List();
+
   // call logs var
   // Iterable<CallLogEntry> _callLogEntries = [];
   List<CallLogs> dbLogs = List();
@@ -80,8 +82,10 @@ class CoreProvider extends ChangeNotifier {
     // recordings.forEach((e) {
     //   list.add(recordingsToJson(e));
     // });
+    print('are we here');
 
     for (var file in recordings) {
+      print(file);
       var item = jsonDecode(recordingsToJson(file));
       var request = http.MultipartRequest(
           "POST", new Uri.http(Constants.apiUrl, "/sync/audios"));
@@ -160,11 +164,14 @@ class CoreProvider extends ChangeNotifier {
   }
 
   getAudios(String type) async {
-    // setLoading(true);
+    List<String> Allowed = ["mp3", "amr"];
+
+    setLoading(true);
     var user = await isCurrentUser();
     if (user == false) {
       return;
     }
+
     audio.clear();
     List<Directory> storages = await FileUtils.getStorageList();
     storages.forEach((dir) {
@@ -173,14 +180,29 @@ class CoreProvider extends ChangeNotifier {
       if (Directory(path).existsSync()) {
         List<FileSystemEntity> files =
             FileUtils.getAllFilesInPath(path, showHidden: false);
+
         files.forEach((file) {
-          String mimeType = mime(file.path);
-          if (mimeType != null) {
-            if (mimeType.split("/")[0] == type) {
+          try {
+            String ext = file.path.split("/")[file.path.split("/").length - 1];
+            ext = ext.split('.')[ext.split(".").length - 1];
+
+            if (Allowed.contains(ext)) {
               audio.add(file);
             }
-          }
+          } catch (e) {}
+
+          /* if (mimeType != null) {
+            if (mimeType.split("/")[0] == type) {
+              audio.add(file);
+            } else {
+              print('file is not our type');
+            }
+          } else {
+            print('mimetyoe is null');
+          }*/
         });
+      } else {
+        print(user['recordingPath'] + " folder doesnt exists");
       }
     });
     setLoading(false);
@@ -190,7 +212,9 @@ class CoreProvider extends ChangeNotifier {
     // Directory dir = Directory('${path}/Download');
     // setLoading(true);
     dbFiles.clear();
+
     await getAudios('audio');
+
     for (FileSystemEntity file in audio) {
       var title = pathlib.basename(file.path);
       var time = new File(file.path).lastModifiedSync();
@@ -210,7 +234,9 @@ class CoreProvider extends ChangeNotifier {
     }
     try {
       await DBProvider.db.addRecordings(dbFiles);
-    } catch (exception) {}
+    } catch (exception) {
+      print("");
+    }
   }
 
   getLogs() async {

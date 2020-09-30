@@ -69,9 +69,12 @@ class DBProvider {
       buffer.write("', '");
       buffer.write(recording.createdAt);
       buffer.write("')");
-      await db.rawInsert(
-          "INSERT Into recordings (id,title,path,isSynced,size,formatedTime,createdAt)"
-          " VALUES ${buffer.toString()}");
+
+      try {
+        await db.rawInsert(
+            "INSERT Into recordings (id,title,path,isSynced,size,formatedTime,createdAt)"
+            " VALUES ${buffer.toString()}");
+      } catch (ext) {}
     });
     // if (buffer.length > 0) {
     // var raw = await db.rawInsert(
@@ -91,6 +94,7 @@ class DBProvider {
     var res = await db.rawQuery(query);
     List<Recordings> list =
         res.isNotEmpty ? res.map((c) => Recordings.fromMap(c)).toList() : [];
+    print(list);
     return list;
   }
 
@@ -166,7 +170,7 @@ class DBProvider {
     final db = await database;
     String query = "SELECT * FROM callLogs";
     if (unsynced == true) {
-      query += " WHERE isSynced=0";
+      query += " WHERE isSynced=0 LIMIT 5";
     }
     var res = await db.rawQuery(query);
     List<CallLogs> list =
