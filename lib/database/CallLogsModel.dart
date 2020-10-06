@@ -22,6 +22,7 @@ class CallLogs {
   int duration;
   String roNumber;
   DateTime callingTime;
+  String callType;
   DateTime createdAt;
 
   CallLogs(
@@ -32,6 +33,7 @@ class CallLogs {
       this.duration,
       this.roNumber,
       this.callingTime,
+      this.callType,
       this.createdAt});
 
   factory CallLogs.fromMap(Map<String, dynamic> json) => new CallLogs(
@@ -42,6 +44,7 @@ class CallLogs {
       duration: json["duration"],
       roNumber: json["roNumber"],
       callingTime: DateTime.parse(json["callingTime"].toString()),
+      callType: json["callType"],
       createdAt: DateTime.parse(json["createdAt"].toString()));
 
   Map<String, dynamic> toMap() => {
@@ -52,6 +55,7 @@ class CallLogs {
         "duration": duration,
         "roNumber": roNumber,
         "callingTime": callingTime,
+        "callType": callType,
         "createdAt": createdAt
       };
 }

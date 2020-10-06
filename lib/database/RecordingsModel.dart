@@ -21,6 +21,7 @@ class Recordings {
   bool isSynced;
   String size;
   String formatedTime;
+  String roNumber;
   DateTime createdAt;
 
   Recordings(
@@ -30,6 +31,7 @@ class Recordings {
       this.isSynced,
       this.size,
       this.formatedTime,
+      this.roNumber,
       this.createdAt});
 
   factory Recordings.fromMap(Map<String, dynamic> json) => new Recordings(
@@ -39,6 +41,7 @@ class Recordings {
       isSynced: json["isSynced"] == 1,
       size: json["size"],
       formatedTime: json["formatedTime"],
+      roNumber: json["roNumber"],
       createdAt: DateTime.parse(json["createdAt"].toString()));
 
   Map<String, dynamic> toMap() => {
@@ -48,6 +51,7 @@ class Recordings {
         "isSynced": isSynced,
         "size": size,
         "formatedTime": formatedTime,
+        "roNumber": roNumber,
         "createdAt": createdAt
       };
 }
