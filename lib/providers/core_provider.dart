@@ -167,10 +167,10 @@ class CoreProvider extends ChangeNotifier {
     List<String> Allowed = ["mp3", "amr", "mp4", "m4a", "acc"];
 
     setLoading(true);
-    var user = await isCurrentUser();
-    if (user == false) {
-      return;
-    }
+    // var user = await isCurrentUser();
+    // if (user == false) {
+    // return;
+    // }
 
     audio.clear();
     List<Directory> storages = await FileUtils.getStorageList();
@@ -212,8 +212,11 @@ class CoreProvider extends ChangeNotifier {
     // Directory dir = Directory('${path}/Download');
     // setLoading(true);
     dbFiles.clear();
-
-    await getAudios('audio');
+    var user = await isCurrentUser();
+    if (user == false) {
+      return;
+    }
+    await getAudios('audio', user);
 
     for (FileSystemEntity file in audio) {
       var title = pathlib.basename(file.path);
@@ -230,6 +233,7 @@ class CoreProvider extends ChangeNotifier {
             ? "Test"
             : FileUtils.formatTime(
                 File(file.path).lastModifiedSync().toIso8601String()),
+        'roNumber': user['mobileNo']
       }));
     }
     try {
@@ -265,6 +269,7 @@ class CoreProvider extends ChangeNotifier {
         'isSynced': false,
         'duration': element.duration,
         'roNumber': userData['mobileNo'],
+        'callType': userData['callType'],
         'callingTime':
             new DateTime.fromMillisecondsSinceEpoch(element.timestamp),
         'createdAt': new DateTime.now()

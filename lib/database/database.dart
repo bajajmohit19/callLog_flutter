@@ -34,6 +34,7 @@ class DBProvider {
           "isSynced BOOLEAN,"
           "size TEXT,"
           "formatedTime TEXT,"
+          "roNumber TEXT,"
           "createdAt CURRENT_TIMESTAMP"
           ")");
       await db.execute("CREATE TABLE callLogs ("
@@ -44,6 +45,7 @@ class DBProvider {
           "duration INT,"
           "roNumber TEXT,"
           "callingTime TEXT,"
+          "callType TEXT,"
           "createdAt CURRENT_TIMESTAMP,"
           "UNIQUE(dialedNumber, callingTime, duration)"
           ")");
@@ -67,12 +69,14 @@ class DBProvider {
       buffer.write("', '");
       buffer.write(recording.formatedTime);
       buffer.write("', '");
+      buffer.write(recording.roNumber);
+      buffer.write("', '");
       buffer.write(recording.createdAt);
       buffer.write("')");
 
       try {
         await db.rawInsert(
-            "INSERT Into recordings (id,title,path,isSynced,size,formatedTime,createdAt)"
+            "INSERT Into recordings (id,title,path,isSynced,size,formatedTime,roNumber,createdAt)"
             " VALUES ${buffer.toString()}");
       } catch (ext) {}
     });
@@ -134,10 +138,12 @@ class DBProvider {
       buffer.write("', '");
       buffer.write(callLog.callingTime);
       buffer.write("', '");
+      buffer.write(callLog.callType);
+      buffer.write("', '");
       buffer.write(DateTime.now());
       buffer.write("')");
       await db.rawInsert(
-          "INSERT Into callLogs (id,dialedNumber,formatedDialedNumber,isSynced,duration,roNumber,callingTime,createdAt)"
+          "INSERT Into callLogs (id,dialedNumber,formatedDialedNumber,isSynced,duration,roNumber,callingTime,callType,createdAt)"
           " VALUES ${buffer.toString()}");
     });
     // if (buffer.length > 0) {
