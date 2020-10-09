@@ -164,7 +164,7 @@ class CoreProvider extends ChangeNotifier {
   }
 
   getAudios(String type) async {
-    List<String> Allowed = ["mp3", "amr"];
+    List<String> Allowed = ["mp3", "amr", "mp4", "m4a", "acc"];
 
     setLoading(true);
     var user = await isCurrentUser();
