@@ -163,7 +163,7 @@ class CoreProvider extends ChangeNotifier {
     callsSyncing = false;
   }
 
-  getAudios(String type) async {
+  getAudios(String type, user) async {
     List<String> Allowed = ["mp3", "amr", "mp4", "m4a", "acc"];
 
     setLoading(true);
