@@ -6,7 +6,7 @@ class Constants {
   //development
   // static String apiUrl = "192.168.43.97:8083";
   //production
-  static String apiUrl = "sales-r.scizers.com";
+  static String apiUrl = "sales-r.ht-india.com";
 
   //Colors for theme
   static Color lightPrimary = Color(0xff025dfa);

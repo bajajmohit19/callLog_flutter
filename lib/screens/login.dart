@@ -75,7 +75,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     Provider.of<CoreProvider>(context, listen: false).setGlobalLoading(true);
     var body = jsonEncode({'mobile': mobileNo});
     var response = await http.post(
-        new Uri.http(Constants.apiUrl, "/loginWithOtp"),
+        new Uri.https(Constants.apiUrl, "/loginWithOtp"),
         body: body,
         headers: {"Content-Type": "application/json"});
 
@@ -100,7 +100,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     // Await the http get response, then decode the json-formatted response.
     Provider.of<CoreProvider>(context, listen: false).setGlobalLoading(true);
     var body = jsonEncode({'mobile': mobileNo, 'otp': otp});
-    var response = await http.post(new Uri.http(Constants.apiUrl, "/verifyOtp"),
+    var response = await http.post(new Uri.https(Constants.apiUrl, "/verifyOtp"),
         body: body, headers: {"Content-Type": "application/json"});
 
     Provider.of<CoreProvider>(context, listen: false).setGlobalLoading(false);
