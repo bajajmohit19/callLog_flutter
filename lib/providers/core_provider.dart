@@ -6,7 +6,6 @@ import 'package:crm/database/RecordingsModel.dart';
 import 'package:crm/database/database.dart';
 import 'package:http/http.dart' as http;
 import 'package:crm/util/file_utils.dart';
-import 'package:mime_type/mime_type.dart';
 import 'package:path/path.dart' as pathlib;
 import 'package:call_log/call_log.dart';
 import 'package:http_parser/http_parser.dart';
@@ -87,6 +86,8 @@ class CoreProvider extends ChangeNotifier {
     for (var file in recordings) {
       print(file);
       var item = jsonDecode(recordingsToJson(file));
+      String filePath = item['path'];
+      String mimeType = filePath.split('.').last;
       var request = http.MultipartRequest(
           "POST", new Uri.http(Constants.apiUrl, "/sync/audios"));
 
@@ -95,11 +96,12 @@ class CoreProvider extends ChangeNotifier {
       request.fields["data"] = jsonEncode(item);
       request.files.add(http.MultipartFile.fromBytes(
           'file', new File(item['path']).readAsBytesSync(),
-          contentType: MediaType('audio', 'mp3'), filename: item['id']));
+          contentType: MediaType('audio', mimeType), filename: item['id']));
       var response = await request.send();
       // print(response);
       if (response.statusCode == 200) {
         print('Uploaded!');
+        item['mimeType'] = mimeType;
         var dataResponse = await http.post(
             new Uri.http(Constants.apiUrl, "/sync/recordings"),
             body: jsonEncode({'arr': item}),
