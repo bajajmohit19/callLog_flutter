@@ -95,7 +95,7 @@ class _SyncScreenState extends State<SyncScreen> {
   }
 
   syncNow() async {
-    // CoreProvider().syncRecordings();
+    CoreProvider().syncRecordings();
     CoreProvider().syncCallLogs();
   }
 
@@ -103,7 +103,7 @@ class _SyncScreenState extends State<SyncScreen> {
   void initState() {
     super.initState();
     getUser();
-    CoreProvider().syncRecordings();
+    // CoreProvider().syncRecordings();
     CoreProvider().syncCallLogs();
   }
 
