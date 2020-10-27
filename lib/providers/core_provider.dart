@@ -271,7 +271,7 @@ class CoreProvider extends ChangeNotifier {
         'isSynced': false,
         'duration': element.duration,
         'roNumber': userData['mobileNo'],
-        'callType': userData['callType'],
+        'callType': element.callType.toString(),
         'callingTime':
             new DateTime.fromMillisecondsSinceEpoch(element.timestamp),
         'createdAt': new DateTime.now()
