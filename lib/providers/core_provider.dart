@@ -122,7 +122,7 @@ class CoreProvider extends ChangeNotifier {
     recordingSyncing = false;
   }
 
-  syncCallLogs() async {
+  fsyncCallLogs() async {
     if (callsSyncing == true) {
       return;
     }
