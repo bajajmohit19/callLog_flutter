@@ -122,7 +122,7 @@ class CoreProvider extends ChangeNotifier {
     recordingSyncing = false;
   }
 
-  fsyncCallLogs() async {
+  syncCallLogs() async {
     if (callsSyncing == true) {
       return;
     }
@@ -271,7 +271,7 @@ class CoreProvider extends ChangeNotifier {
         'isSynced': false,
         'duration': element.duration,
         'roNumber': userData['mobileNo'],
-        'callType': element.callType.toString(),
+        'callType': element.callType.toString().split('.')[1],
         'callingTime':
             new DateTime.fromMillisecondsSinceEpoch(element.timestamp),
         'createdAt': new DateTime.now()
