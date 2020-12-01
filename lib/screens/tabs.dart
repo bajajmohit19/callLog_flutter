@@ -5,7 +5,6 @@ import 'package:page_transition/page_transition.dart';
 import 'package:crm/screens/login.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 class TabsScreen extends StatefulWidget {
   @override
@@ -81,11 +80,13 @@ class _TabScreenState extends State<TabsScreen> {
   void initState() {
     super.initState();
     getUser();
-    // CoreProvider().syncRecordings();
-    // CoreProvider().syncCallLogs();
+    syncNow();
   }
 
   syncNow() {
+    if (isSyncing == true) {
+      return false;
+    }
     var isFileSyncing = _isFileSyncing;
     isFileSyncing[0] = true;
     setState(() {
