@@ -86,16 +86,24 @@ class _TabScreenState extends State<TabsScreen> {
   }
 
   syncNow() {
+    var isFileSyncing = _isFileSyncing;
+    isFileSyncing[0] = true;
     setState(() {
       isSyncing = true;
+      _isFileSyncing = [...isFileSyncing];
     });
     Stream<dynamic> recData = CoreProvider().syncRecordings();
     recData.listen((dynamic value) {
-      print('herreeee');
-      print('$value');
       if (value == false) {
         setState(() {
           isSyncing = false;
+        });
+      } else {
+        isFileSyncing = _isFileSyncing;
+        isFileSyncing[value] = false;
+        isFileSyncing[value + 1] = true;
+        setState(() {
+          _isFileSyncing = [...isFileSyncing];
         });
       }
     });
@@ -127,8 +135,15 @@ class _TabScreenState extends State<TabsScreen> {
                   shrinkWrap: true,
                   itemCount: userSnap.data == null ? 0 : userSnap.data.length,
                   itemBuilder: (context, index) {
-                    if (userSnap.data.length != _isFileSyncing.length)
-                      _isFileSyncing = List.filled(userSnap.data.length, false);
+                    if (userSnap.data.length != _isFileSyncing.length) {
+                      var temp = List.filled(userSnap.data.length, false);
+                      if (_isFileSyncing.length < userSnap.data.length) {
+                        _isFileSyncing = temp;
+                      } else if (isSyncing == true) {
+                        temp.setRange(0, 1, [true]);
+                      }
+                      _isFileSyncing = temp;
+                    }
                     // var project = userSnap.data[index];
                     return Column(
                       children: <Widget>[

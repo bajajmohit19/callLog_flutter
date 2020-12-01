@@ -82,11 +82,12 @@ class CoreProvider extends ChangeNotifier {
     //   list.add(recordingsToJson(e));
     // });
     print('are we here');
-
+    var index = 0;
     for (var file in recordings) {
       print(file);
       await syncSingleRecording(file, user);
-      yield file;
+      yield index;
+      index++;
     }
     recordingSyncing = false;
     yield false;
