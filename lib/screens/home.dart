@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:crm/screens/folder.dart';
@@ -6,7 +5,6 @@ import 'package:crm/util/consts.dart';
 import 'package:crm/widgets/custom_alert.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 
 class MainScreen extends StatefulWidget {

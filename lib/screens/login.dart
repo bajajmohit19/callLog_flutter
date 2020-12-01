@@ -1,5 +1,4 @@
 import 'package:crm/screens/splash.dart';
-import 'package:crm/screens/syncScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:crm/providers/core_provider.dart';
 import 'package:crm/util/consts.dart';
@@ -100,8 +99,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     // Await the http get response, then decode the json-formatted response.
     Provider.of<CoreProvider>(context, listen: false).setGlobalLoading(true);
     var body = jsonEncode({'mobile': mobileNo, 'otp': otp});
-    var response = await http.post(new Uri.https(Constants.apiUrl, "/verifyOtp"),
-        body: body, headers: {"Content-Type": "application/json"});
+    var response = await http.post(
+        new Uri.https(Constants.apiUrl, "/verifyOtp"),
+        body: body,
+        headers: {"Content-Type": "application/json"});
 
     Provider.of<CoreProvider>(context, listen: false).setGlobalLoading(false);
 

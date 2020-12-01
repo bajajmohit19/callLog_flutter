@@ -89,11 +89,13 @@ class DBProvider {
     return 0;
   }
 
-  listRecordings({bool unsynced = false}) async {
+  listRecordings({unsynced = false}) async {
     final db = await database;
     String query = "SELECT * FROM recordings";
     if (unsynced == true) {
       query += " WHERE isSynced=0";
+    } else {
+      query += " WHERE isSynced=1";
     }
     var res = await db.rawQuery(query);
     List<Recordings> list =

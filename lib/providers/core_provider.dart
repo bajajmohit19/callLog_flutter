@@ -63,7 +63,7 @@ class CoreProvider extends ChangeNotifier {
     }
   }
 
-  syncRecordings() async {
+  Stream<dynamic> syncRecordings() async* {
     if (recordingSyncing == true) {
       return;
     }
@@ -85,41 +85,11 @@ class CoreProvider extends ChangeNotifier {
 
     for (var file in recordings) {
       print(file);
-      var item = jsonDecode(recordingsToJson(file));
-      String filePath = item['path'];
-      String mimeType = filePath.split('.').last;
-      var request = http.MultipartRequest(
-          "POST", new Uri.https(Constants.apiUrl, "/sync/audios"));
-
-      request.headers['Content-Encoding'] = "audio/mpeg";
-      request.headers['Authorization'] = 'Bearer ${user['token']}';
-      request.fields["data"] = jsonEncode(item);
-      request.files.add(http.MultipartFile.fromBytes(
-          'file', new File(item['path']).readAsBytesSync(),
-          contentType: MediaType('audio', mimeType), filename: item['id']));
-      var response = await request.send();
-      // print(response);
-      if (response.statusCode == 200) {
-        print('Uploaded!');
-        item['mimeType'] = mimeType;
-        var dataResponse = await http.post(
-            new Uri.https(Constants.apiUrl, "/sync/recordings"),
-            body: jsonEncode({'arr': item}),
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": 'Bearer ${user['token']}'
-            });
-
-        if (dataResponse.statusCode == 200) {
-          var data = jsonDecode(dataResponse.body)['data'] as List;
-          List<Recordings> ids =
-              data.map((json) => new Recordings(id: json['id'])).toList();
-
-          DBProvider.db.setRecordingsSync(ids);
-        }
-      }
+      await syncSingleRecording(file, user);
+      yield file;
     }
     recordingSyncing = false;
+    yield false;
   }
 
   syncCallLogs() async {
@@ -282,5 +252,56 @@ class CoreProvider extends ChangeNotifier {
     } catch (e) {}
 
     return 0;
+  }
+
+  getAllRecording(unsynced) async {
+    var user = await isCurrentUser();
+    if (user == false) {
+      return;
+    }
+    await getNewFiles();
+    List<Recordings> recordings =
+        await DBProvider.db.listRecordings(unsynced: unsynced);
+    return recordings;
+  }
+
+  syncSingleRecording(file, user) async {
+    // user = jsonDecode(user)["token"];
+    var item = jsonDecode(recordingsToJson(file));
+    String filePath = item['path'];
+    String mimeType = filePath.split('.').last;
+    var request = http.MultipartRequest(
+        "POST", new Uri.https(Constants.apiUrl, "/sync/audios"));
+
+    request.headers['Content-Encoding'] = "audio/mpeg";
+    request.headers['Authorization'] = 'Bearer ${user["token"]}';
+    request.fields["data"] = jsonEncode(item);
+    request.files.add(http.MultipartFile.fromBytes(
+        'file', new File(item['path']).readAsBytesSync(),
+        contentType: MediaType('audio', mimeType), filename: item['id']));
+    var response = await request.send();
+    // print(response);
+    if (response.statusCode == 200) {
+      print('Uploaded!');
+      item['mimeType'] = mimeType;
+      var dataResponse = await http.post(
+          new Uri.https(Constants.apiUrl, "/sync/recordings"),
+          body: jsonEncode({'arr': item}),
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": 'Bearer ${user['token']}'
+          });
+
+      if (dataResponse.statusCode == 200) {
+        var data = jsonDecode(dataResponse.body)['data'] as List;
+        List<Recordings> ids =
+            data.map((json) => new Recordings(id: json['id'])).toList();
+
+        await DBProvider.db.setRecordingsSync(ids);
+        return true;
+      } else
+        return false;
+    } else
+      return false;
   }
 }

@@ -1,21 +1,14 @@
 import 'dart:convert';
 import 'dart:async';
-import 'dart:io';
-
-import 'package:crm/database/CallLogsModel.dart';
-import 'package:crm/database/RecordingsModel.dart';
-import 'package:crm/screens/home.dart';
 import 'package:crm/screens/login.dart';
-import 'package:crm/widgets/custom_alert.dart';
+import 'package:crm/screens/tabs.dart';
+// import 'package:crm/screens/tabs.dart';
 import 'package:flutter/material.dart';
 import 'package:crm/providers/core_provider.dart';
-import 'package:crm/util/consts.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:crm/database/database.dart';
-import 'package:http/http.dart' as http;
 
 DateTime currentBackPressTime;
 
@@ -95,16 +88,16 @@ class _SyncScreenState extends State<SyncScreen> {
   }
 
   syncNow() async {
-    CoreProvider().syncRecordings();
-    CoreProvider().syncCallLogs();
+    // CoreProvider().syncRecordings();
+    // CoreProvider().syncCallLogs();
   }
 
   @override
   void initState() {
     super.initState();
     getUser();
-    CoreProvider().syncRecordings();
-    CoreProvider().syncCallLogs();
+    // CoreProvider().syncRecordings();
+    // CoreProvider().syncCallLogs();
   }
 
   @override
@@ -112,38 +105,7 @@ class _SyncScreenState extends State<SyncScreen> {
     return WillPopScope(
       onWillPop: onWillPop,
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).primaryColor,
-          title: Text(
-            "Welcome! HT Sales CRM",
-            style: TextStyle(
-              fontSize: 20,
-            ),
-          ),
-        ),
-        body: Column(
-          children: <Widget>[
-            Center(
-              child: Text(
-                'Mobile No.: ${userData['mobileNo']}',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
-              ),
-            ),
-            Center(
-              child: RaisedButton(
-                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                color: Colors.lightBlue,
-                textColor: Colors.white,
-                onPressed: () => syncNow(),
-                child: Text(
-                  'Sync Now',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                elevation: 5,
-              ),
-            ),
-          ],
-        ),
+        body: TabsScreen(),
         persistentFooterButtons: [
           SizedBox(
             width: double.maxFinite,
