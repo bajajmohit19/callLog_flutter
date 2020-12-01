@@ -92,7 +92,7 @@ class _TabScreenState extends State<TabsScreen> {
   void initState() {
     super.initState();
     getUser();
-    // syncNow();
+    syncNow();
   }
 
   syncNow() {

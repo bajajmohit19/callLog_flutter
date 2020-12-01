@@ -4,7 +4,6 @@ import 'package:crm/screens/login.dart';
 import 'package:crm/screens/tabs.dart';
 // import 'package:crm/screens/tabs.dart';
 import 'package:flutter/material.dart';
-import 'package:crm/providers/core_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:page_transition/page_transition.dart';
@@ -87,17 +86,10 @@ class _SyncScreenState extends State<SyncScreen> {
     );
   }
 
-  syncNow() async {
-    // CoreProvider().syncRecordings();
-    // CoreProvider().syncCallLogs();
-  }
-
   @override
   void initState() {
     super.initState();
     getUser();
-    // CoreProvider().syncRecordings();
-    // CoreProvider().syncCallLogs();
   }
 
   @override
