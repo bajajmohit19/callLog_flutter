@@ -5,6 +5,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:crm/screens/login.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class TabsScreen extends StatefulWidget {
   @override
@@ -13,7 +14,9 @@ class TabsScreen extends StatefulWidget {
 
 class _TabScreenState extends State<TabsScreen> {
   String user;
-  List<Map<String, dynamic>> recordings = [];
+  int syncedCount = 0;
+  int unsyncedCount = 0;
+  List recordings = [];
   List<bool> _isFileSyncing = List.filled(1, false);
   bool isSyncing = false;
   Map<String, dynamic> userData = new Map();
@@ -38,7 +41,16 @@ class _TabScreenState extends State<TabsScreen> {
 
   getRecordings(unsynced) async {
     recordings = await CoreProvider().getAllRecording(unsynced);
-    _isFileSyncing = List.filled(recordings.length, false);
+
+    if (unsynced == true
+        ? unsyncedCount != recordings.length
+        : syncedCount != recordings.length)
+      setState(() {
+        unsynced == true
+            ? unsyncedCount = recordings.length
+            : syncedCount = recordings.length;
+      });
+    return recordings;
   }
 
   showMessage(str) {
@@ -80,7 +92,7 @@ class _TabScreenState extends State<TabsScreen> {
   void initState() {
     super.initState();
     getUser();
-    syncNow();
+    // syncNow();
   }
 
   syncNow() {
@@ -98,7 +110,15 @@ class _TabScreenState extends State<TabsScreen> {
       if (value == false) {
         setState(() {
           isSyncing = false;
+          _isFileSyncing = List.filled(_isFileSyncing.length, false);
         });
+        Fluttertoast.showToast(
+            msg: "Recording synced!",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0);
       } else {
         isFileSyncing = _isFileSyncing;
         isFileSyncing[value] = false;
@@ -113,7 +133,7 @@ class _TabScreenState extends State<TabsScreen> {
 
   Widget recordingWidget(unsynced) {
     return FutureBuilder(
-      future: CoreProvider().getAllRecording(unsynced),
+      future: getRecordings(unsynced),
       builder: (buildContext, userSnap) {
         switch (userSnap.connectionState) {
           case ConnectionState.none:
@@ -212,7 +232,10 @@ class _TabScreenState extends State<TabsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> _tabs = ['Unsynced', 'Synced'];
+    final List<dynamic> _tabs = [
+      'Unsynced (' + unsyncedCount.toString() + ')',
+      'Synced (' + syncedCount.toString() + ')'
+    ];
     return MaterialApp(
       home: DefaultTabController(
           length: _tabs.length, // This is the number of tabs.
@@ -234,7 +257,7 @@ class _TabScreenState extends State<TabsScreen> {
                         ),
                         bottom: TabBar(
                             tabs: _tabs
-                                .map((String name) => Tab(
+                                .map((name) => Tab(
                                         child: Text(
                                       name,
                                       style: TextStyle(
