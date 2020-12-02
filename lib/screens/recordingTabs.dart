@@ -98,10 +98,10 @@ class _TabScreenState extends State<RecordingTabScreen> {
   void initState() {
     super.initState();
     getUser();
+    _isFileSyncing = widget.isFileSyncing;
   }
 
   Widget recordingWidget(unsynced) {
-    _isFileSyncing = widget.isFileSyncing;
     return FutureBuilder(
       future: getRecordings(unsynced),
       builder: (buildContext, userSnap) {
@@ -126,16 +126,19 @@ class _TabScreenState extends State<RecordingTabScreen> {
                   shrinkWrap: true,
                   itemCount: userSnap.data == null ? 0 : userSnap.data.length,
                   itemBuilder: (context, index) {
+                    var temp = List.filled(userSnap.data.length, false);
                     if (userSnap.data.length != _isFileSyncing.length) {
-                      var temp = List.filled(userSnap.data.length, false);
-
                       if (_isFileSyncing.length < userSnap.data.length) {
                         temp.setRange(0, widget.isFileSyncing.length,
                             widget.isFileSyncing);
                         _isFileSyncing = temp;
                       } else {
-                        temp.setRange(0, 1, [true]);
+                        temp.setRange(0, 1, widget.isFileSyncing);
                       }
+                      _isFileSyncing = temp;
+                    } else {
+                      temp = _isFileSyncing;
+                      temp.setRange(0, 1, widget.isFileSyncing);
                       _isFileSyncing = temp;
                     }
                     // var project = userSnap.data[index];

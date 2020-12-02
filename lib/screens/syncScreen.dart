@@ -99,7 +99,7 @@ class _SyncScreenState extends State<SyncScreen> {
   void initState() {
     super.initState();
     getUser();
-    syncNow();
+    // syncNow();
   }
 
   syncNow() async {
@@ -107,11 +107,11 @@ class _SyncScreenState extends State<SyncScreen> {
       return false;
     }
     var isFileSyncing = _isFileSyncing;
-    isFileSyncing[0] = true;
     setState(() {
       isSyncing = true;
     });
     await CoreProvider().syncCallLogs();
+    isFileSyncing[0] = true;
     setState(() {
       _isFileSyncing = [...isFileSyncing];
     });
