@@ -174,11 +174,13 @@ class DBProvider {
     return raw;
   }
 
-  listCallLogs({bool unsynced = false}) async {
+  listCallLogs({unsynced = false}) async {
     final db = await database;
     String query = "SELECT * FROM callLogs";
     if (unsynced == true) {
-      query += " WHERE isSynced=0 LIMIT 5";
+      query += " WHERE isSynced=0";
+    } else {
+      query += " WHERE isSynced=1";
     }
     var res = await db.rawQuery(query);
     List<CallLogs> list =

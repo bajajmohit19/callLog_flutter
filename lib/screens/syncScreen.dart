@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:async';
+import 'package:crm/providers/core_provider.dart';
 import 'package:crm/screens/login.dart';
-import 'package:crm/screens/tabs.dart';
-// import 'package:crm/screens/tabs.dart';
+import 'package:crm/screens/recordingTabs.dart';
+import 'package:crm/screens/callLogTabs.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,13 +18,21 @@ class SyncScreen extends StatefulWidget {
 }
 
 class _SyncScreenState extends State<SyncScreen> {
-  // 15 minutes
   String user;
   bool isSyncing = false;
   Map<String, dynamic> userData = new Map();
+  int _currentIndex = 0;
+  List<bool> _isFileSyncing = List.filled(1, false);
 
+  List<Widget> _children = [];
   // call_logs phone calls sync -- database
   // call recording sync -- automatic .. Download -- Name
+
+  void onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   getUser() async {
     final prefs = await SharedPreferences.getInstance();
@@ -90,14 +99,108 @@ class _SyncScreenState extends State<SyncScreen> {
   void initState() {
     super.initState();
     getUser();
+    syncNow();
+  }
+
+  syncNow() async {
+    if (isSyncing == true) {
+      return false;
+    }
+    var isFileSyncing = _isFileSyncing;
+    isFileSyncing[0] = true;
+    setState(() {
+      isSyncing = true;
+    });
+    await CoreProvider().syncCallLogs();
+    setState(() {
+      _isFileSyncing = [...isFileSyncing];
+    });
+    Stream<dynamic> recData = CoreProvider().syncRecordings();
+    recData.listen((dynamic value) {
+      if (value == false) {
+        setState(() {
+          isSyncing = false;
+          _isFileSyncing = List.filled(1, false);
+        });
+        Fluttertoast.showToast(
+            msg: "Recording synced!",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else {
+        isFileSyncing = _isFileSyncing;
+        isFileSyncing[0] = true;
+        setState(() {
+          _isFileSyncing = [...isFileSyncing];
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    _children = [
+      RecordingTabScreen(isFileSyncing: _isFileSyncing),
+      CallLogsTabScreen()
+    ];
     return WillPopScope(
       onWillPop: onWillPop,
       child: Scaffold(
-        body: TabsScreen(),
+        appBar: AppBar(
+            backgroundColor: Theme.of(context).primaryColor,
+            title: Text(
+              "Welcome! HT Sales CRM",
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+            actions: <Widget>[
+              RaisedButton(
+                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                color: Theme.of(context).primaryColor,
+                textColor: Colors.white,
+                onPressed: () async => {await syncNow()},
+                child: Row(
+                  children: [
+                    isSyncing == true
+                        ? Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 5),
+                            child: SizedBox(
+                              child: CircularProgressIndicator(
+                                backgroundColor: Colors.white,
+                              ),
+                              height: 20.0,
+                              width: 20.0,
+                            ),
+                          )
+                        : Text(''),
+                    Text(
+                      'Sync Now',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                elevation: 0,
+              ),
+            ]),
+        bottomNavigationBar: BottomNavigationBar(
+          onTap: onTabTapped,
+          currentIndex: _currentIndex,
+          items: [
+            new BottomNavigationBarItem(
+              icon: Icon(Icons.record_voice_over),
+              title: Text('Recordings'),
+            ),
+            new BottomNavigationBarItem(
+              icon: Icon(Icons.call),
+              title: Text('Call Logs'),
+            )
+          ],
+        ),
+        body: _children[_currentIndex],
         persistentFooterButtons: [
           SizedBox(
             width: double.maxFinite,

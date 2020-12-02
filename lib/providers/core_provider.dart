@@ -131,9 +131,13 @@ class CoreProvider extends ChangeNotifier {
             data.map((json) => new CallLogs(id: json['id'])).toList();
 
         DBProvider.db.setCallLogsSync(ids);
-      } else {}
+        return true;
+      } else {
+        return false;
+      }
     }
     callsSyncing = false;
+    return true;
   }
 
   getAudios(String type, user) async {
@@ -264,6 +268,17 @@ class CoreProvider extends ChangeNotifier {
     List<Recordings> recordings =
         await DBProvider.db.listRecordings(unsynced: unsynced);
     return recordings;
+  }
+
+  getAllCallLogs(unsynced) async {
+    var user = await isCurrentUser();
+    if (user == false) {
+      return;
+    }
+    await getLogs();
+    List<CallLogs> callLogs =
+        await DBProvider.db.listCallLogs(unsynced: unsynced);
+    return callLogs;
   }
 
   syncSingleRecording(file, user) async {

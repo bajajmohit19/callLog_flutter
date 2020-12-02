@@ -7,19 +7,25 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-class TabsScreen extends StatefulWidget {
+class RecordingTabScreen extends StatefulWidget {
+  final List<bool> isFileSyncing;
+  RecordingTabScreen({Key key, @required this.isFileSyncing}) : super(key: key);
+
   @override
   _TabScreenState createState() => _TabScreenState();
 }
 
-class _TabScreenState extends State<TabsScreen> {
+class _TabScreenState extends State<RecordingTabScreen> {
   String user;
   int syncedCount = 0;
   int unsyncedCount = 0;
   List recordings = [];
   List<bool> _isFileSyncing = List.filled(1, false);
   bool isSyncing = false;
+  // int _currentIndex = 0;
+  // final List<Widget> _children = [];
   Map<String, dynamic> userData = new Map();
+
   var _snackBar;
   getUser() async {
     final prefs = await SharedPreferences.getInstance();
@@ -92,46 +98,10 @@ class _TabScreenState extends State<TabsScreen> {
   void initState() {
     super.initState();
     getUser();
-    syncNow();
-  }
-
-  syncNow() {
-    if (isSyncing == true) {
-      return false;
-    }
-    var isFileSyncing = _isFileSyncing;
-    isFileSyncing[0] = true;
-    setState(() {
-      isSyncing = true;
-      _isFileSyncing = [...isFileSyncing];
-    });
-    Stream<dynamic> recData = CoreProvider().syncRecordings();
-    recData.listen((dynamic value) {
-      if (value == false) {
-        setState(() {
-          isSyncing = false;
-          _isFileSyncing = List.filled(_isFileSyncing.length, false);
-        });
-        Fluttertoast.showToast(
-            msg: "Recording synced!",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.TOP,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 16.0);
-      } else {
-        isFileSyncing = _isFileSyncing;
-        isFileSyncing[value] = false;
-        isFileSyncing[value + 1] = true;
-        setState(() {
-          _isFileSyncing = [...isFileSyncing];
-        });
-      }
-    });
-    CoreProvider().syncCallLogs();
   }
 
   Widget recordingWidget(unsynced) {
+    _isFileSyncing = widget.isFileSyncing;
     return FutureBuilder(
       future: getRecordings(unsynced),
       builder: (buildContext, userSnap) {
@@ -150,7 +120,7 @@ class _TabScreenState extends State<TabsScreen> {
               return new Text('Error: ${userSnap.error}');
             else
               return new Container(
-                margin: EdgeInsets.only(top: 40),
+                // margin: EdgeInsets.only(top: 40),
                 child: ListView.builder(
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
@@ -158,9 +128,12 @@ class _TabScreenState extends State<TabsScreen> {
                   itemBuilder: (context, index) {
                     if (userSnap.data.length != _isFileSyncing.length) {
                       var temp = List.filled(userSnap.data.length, false);
+
                       if (_isFileSyncing.length < userSnap.data.length) {
+                        temp.setRange(0, widget.isFileSyncing.length,
+                            widget.isFileSyncing);
                         _isFileSyncing = temp;
-                      } else if (isSyncing == true) {
+                      } else {
                         temp.setRange(0, 1, [true]);
                       }
                       _isFileSyncing = temp;
@@ -248,14 +221,10 @@ class _TabScreenState extends State<TabsScreen> {
                     handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
                         context),
                     sliver: SliverAppBar(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        title: Text(
-                          "Welcome! HT Sales CRM",
-                          style: TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
-                        bottom: TabBar(
+                        backgroundColor: Color(0xff025dfa),
+                        titleSpacing: 0,
+                        toolbarHeight: 0,
+                        flexibleSpace: TabBar(
                             tabs: _tabs
                                 .map((name) => Tab(
                                         child: Text(
@@ -265,41 +234,8 @@ class _TabScreenState extends State<TabsScreen> {
                                       ),
                                     )))
                                 .toList()),
-                        actions: <Widget>[
-                          RaisedButton(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 10),
-                            color: Theme.of(context).primaryColor,
-                            textColor: Colors.white,
-                            onPressed: () async => {await syncNow()},
-                            child: Row(
-                              children: [
-                                isSyncing == true
-                                    ? Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(horizontal: 5),
-                                        child: SizedBox(
-                                          child: CircularProgressIndicator(
-                                            backgroundColor: Colors.white,
-                                          ),
-                                          height: 20.0,
-                                          width: 20.0,
-                                        ),
-                                      )
-                                    : Text(''),
-                                Text(
-                                  'Sync Now',
-                                  style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                            elevation: 0,
-                          ),
-                        ],
                         pinned: true,
-                        snap: true,
+                        expandedHeight: 0,
                         floating: true),
                   ),
                 ];
