@@ -156,6 +156,19 @@ class _SyncScreenState extends State<SyncScreen> {
                 fontSize: 20,
               ),
             ),
+            bottom: PreferredSize(
+                child: Container(
+                  alignment: Alignment.topLeft,
+                  padding: EdgeInsets.only(left: 15, bottom: 15),
+                  child: Text(
+                    '${userData['mobileNo']}',
+                    style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800),
+                  ),
+                ),
+                preferredSize: Size.fromHeight(30)),
             actions: <Widget>[
               RaisedButton(
                 padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
