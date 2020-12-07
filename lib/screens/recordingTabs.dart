@@ -59,14 +59,14 @@ class _TabScreenState extends State<RecordingTabScreen> {
     return recordings;
   }
 
-  showMessage(str) {
+  showMessage(str, error) {
     var snackBar;
     snackBar = SnackBar(
       content: Text(
         str,
         textAlign: TextAlign.center,
       ),
-      backgroundColor: Colors.green,
+      backgroundColor: error == true ? Colors.red : Colors.green,
       behavior: SnackBarBehavior.floating,
     );
     setState(() {
@@ -83,9 +83,9 @@ class _TabScreenState extends State<RecordingTabScreen> {
     var success =
         await CoreProvider().syncSingleRecording(file, jsonDecode(user));
     if (success == true) {
-      showMessage('Recording synced!');
+      showMessage('Recording synced!', false);
     } else {
-      showMessage('Syncing failed');
+      showMessage('Syncing failed', true);
     }
     isFileSyncing[index] = false;
     setState(() {
@@ -136,9 +136,10 @@ class _TabScreenState extends State<RecordingTabScreen> {
                         temp.setRange(0, 1, widget.isFileSyncing);
                       }
                       _isFileSyncing = temp;
-                    } else {
+                    } else if (widget.isFileSyncing[0] == true) {
                       temp = _isFileSyncing;
-                      temp.setRange(0, 1, widget.isFileSyncing);
+                      temp.setRange(
+                          0, widget.isFileSyncing.length, widget.isFileSyncing);
                       _isFileSyncing = temp;
                     }
                     // var project = userSnap.data[index];

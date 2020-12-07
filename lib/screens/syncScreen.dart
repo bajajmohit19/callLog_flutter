@@ -99,7 +99,7 @@ class _SyncScreenState extends State<SyncScreen> {
   void initState() {
     super.initState();
     getUser();
-    // syncNow();
+    syncNow();
   }
 
   syncNow() async {
@@ -131,7 +131,8 @@ class _SyncScreenState extends State<SyncScreen> {
             fontSize: 16.0);
       } else {
         isFileSyncing = _isFileSyncing;
-        isFileSyncing[0] = true;
+        isFileSyncing[value] = false;
+        isFileSyncing[value + 1] = true;
         setState(() {
           _isFileSyncing = [...isFileSyncing];
         });
