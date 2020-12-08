@@ -130,9 +130,9 @@ class _SyncScreenState extends State<SyncScreen> {
             textColor: Colors.white,
             fontSize: 16.0);
       } else {
-        isFileSyncing = _isFileSyncing;
-        isFileSyncing[value] = false;
-        isFileSyncing[value + 1] = true;
+        // isFileSyncing = List.filled(value + 2, false);
+        isFileSyncing = List.filled(1, false);
+        isFileSyncing[0] = true;
         setState(() {
           _isFileSyncing = [...isFileSyncing];
         });

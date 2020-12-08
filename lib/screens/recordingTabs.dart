@@ -138,8 +138,7 @@ class _TabScreenState extends State<RecordingTabScreen> {
                       _isFileSyncing = temp;
                     } else if (widget.isFileSyncing[0] == true) {
                       temp = _isFileSyncing;
-                      temp.setRange(
-                          0, widget.isFileSyncing.length, widget.isFileSyncing);
+                      temp.setRange(0, 1, widget.isFileSyncing);
                       _isFileSyncing = temp;
                     }
                     // var project = userSnap.data[index];
