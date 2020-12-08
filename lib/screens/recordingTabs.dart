@@ -129,8 +129,7 @@ class _TabScreenState extends State<RecordingTabScreen> {
                     var temp = List.filled(userSnap.data.length, false);
                     if (userSnap.data.length != _isFileSyncing.length) {
                       if (_isFileSyncing.length < userSnap.data.length) {
-                        temp.setRange(0, widget.isFileSyncing.length,
-                            widget.isFileSyncing);
+                        temp.setRange(0, 1, widget.isFileSyncing);
                         _isFileSyncing = temp;
                       } else {
                         temp.setRange(0, 1, widget.isFileSyncing);
