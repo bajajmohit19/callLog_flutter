@@ -9,6 +9,7 @@ import 'dart:async';
 // import './src/bloc/ApplicationBloc.dart';
 // import './src/bloc/BlocProvider.dart';
 import 'package:crm/screens/splash.dart';
+import 'package:wakelock/wakelock.dart';
 
 const sync = 'sync';
 
@@ -17,8 +18,8 @@ void callbackDispatcher() {
     switch (task) {
       case sync:
         debugPrint('Syncing Start...');
-        // CoreProvider().syncRecordings();
-        // CoreProvider().syncCallLogs();
+        CoreProvider().syncRecordings();
+        CoreProvider().syncCallLogs();
 
         break;
     }
@@ -32,6 +33,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   Workmanager.initialize(callbackDispatcher, isInDebugMode: false);
   Workmanager.registerPeriodicTask("1", sync, frequency: Duration(minutes: 15));
+  Wakelock.enable();
   runApp(
     MultiProvider(
       providers: [
