@@ -1,8 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-
-// import 'package:crm/screens/layout.dart';
-import 'package:crm/screens/home.dart';
 import 'package:crm/screens/syncScreen.dart';
 import 'package:crm/util/consts.dart';
 import 'package:flutter/material.dart';
@@ -144,7 +140,7 @@ class _SplashState extends State<Splash> {
                   ],
                 ),
               ),
-              isLoading: coreProvider.globalLoader),
+              isLoading: coreProvider.syncGlobalLoader),
         );
       },
     );

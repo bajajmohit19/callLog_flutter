@@ -5,11 +5,10 @@ import 'package:page_transition/page_transition.dart';
 import 'package:crm/screens/login.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 
 class RecordingTabScreen extends StatefulWidget {
-  final List<bool> isFileSyncing;
-  RecordingTabScreen({Key key, @required this.isFileSyncing}) : super(key: key);
+  RecordingTabScreen({Key key}) : super(key: key);
 
   @override
   _TabScreenState createState() => _TabScreenState();
@@ -20,7 +19,6 @@ class _TabScreenState extends State<RecordingTabScreen> {
   int syncedCount = 0;
   int unsyncedCount = 0;
   List recordings = [];
-  List<bool> _isFileSyncing = List.filled(1, false);
   bool isSyncing = false;
   // int _currentIndex = 0;
   // final List<Widget> _children = [];
@@ -74,23 +72,13 @@ class _TabScreenState extends State<RecordingTabScreen> {
     });
   }
 
-  syncFile(file, index) async {
-    var isFileSyncing = _isFileSyncing;
-    isFileSyncing[index] = true;
-    setState(() {
-      _isFileSyncing = [...isFileSyncing];
-    });
-    var success =
-        await CoreProvider().syncSingleRecording(file, jsonDecode(user));
+  syncFile(file, provider) async {
+    var success = await provider.syncSingleRecording(file, jsonDecode(user));
     if (success == true) {
       showMessage('Recording synced!', false);
     } else {
       showMessage('Syncing failed', true);
     }
-    isFileSyncing[index] = false;
-    setState(() {
-      _isFileSyncing = [...isFileSyncing];
-    });
     return;
   }
 
@@ -98,7 +86,6 @@ class _TabScreenState extends State<RecordingTabScreen> {
   void initState() {
     super.initState();
     getUser();
-    _isFileSyncing = widget.isFileSyncing;
   }
 
   Widget recordingWidget(unsynced) {
@@ -126,74 +113,63 @@ class _TabScreenState extends State<RecordingTabScreen> {
                   shrinkWrap: true,
                   itemCount: userSnap.data == null ? 0 : userSnap.data.length,
                   itemBuilder: (context, index) {
-                    var temp = List.filled(userSnap.data.length, false);
-                    if (userSnap.data.length != _isFileSyncing.length) {
-                      if (_isFileSyncing.length < userSnap.data.length) {
-                        temp.setRange(0, 1, widget.isFileSyncing);
-                        _isFileSyncing = temp;
-                      } else {
-                        temp.setRange(0, 1, widget.isFileSyncing);
-                      }
-                      _isFileSyncing = temp;
-                    } else if (widget.isFileSyncing[0] == true) {
-                      temp = _isFileSyncing;
-                      temp.setRange(0, 1, widget.isFileSyncing);
-                      _isFileSyncing = temp;
-                    }
-                    // var project = userSnap.data[index];
                     return Column(
                       children: <Widget>[
                         Card(
-                          child: ListTile(
-                              isThreeLine: true,
-                              leading: Icon(Icons.music_note),
-                              // title: Text(userSnap.data[index].title,
-                              //     style: TextStyle(fontSize: 20)),
-                              title: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(userSnap.data[index].title)
-                                ],
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Column(children: [
-                                    Text(userSnap.data[index].path.toString(),
-                                        style: TextStyle(fontSize: 12)),
-                                  ]),
-                                  Row(
-                                    children: [
-                                      Text(
-                                          DateFormat('dd/MM/yyyy hh:mm').format(
-                                              userSnap.data[index].createdAt),
+                          child: Consumer<CoreProvider>(
+                              builder: (context, provider, child) {
+                            return ListTile(
+                                isThreeLine: true,
+                                leading: Icon(Icons.music_note),
+                                title: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text(userSnap.data[index].title)
+                                  ],
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Column(children: [
+                                      Text(userSnap.data[index].path.toString(),
                                           style: TextStyle(fontSize: 12)),
-                                      Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 5),
-                                        child: Text(userSnap.data[index].size,
+                                    ]),
+                                    Row(
+                                      children: [
+                                        Text(
+                                            DateFormat('dd/MM/yyyy hh:mm')
+                                                .format(userSnap
+                                                    .data[index].createdAt),
                                             style: TextStyle(fontSize: 12)),
-                                      )
-                                    ],
-                                  )
-                                ],
-                              ),
-                              contentPadding: EdgeInsets.all(15),
-                              dense: false,
-                              trailing: unsynced != 0
-                                  ? GestureDetector(
-                                      behavior: HitTestBehavior.translucent,
-                                      onTap: () async {
-                                        await syncFile(
-                                            userSnap.data[index], index);
-                                        Scaffold.of(buildContext)
-                                            .showSnackBar(_snackBar);
-                                      },
-                                      child: _isFileSyncing[index] == false
-                                          ? Icon(Icons.sync)
-                                          : CircularProgressIndicator())
-                                  : null),
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 5),
+                                          child: Text(userSnap.data[index].size,
+                                              style: TextStyle(fontSize: 12)),
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                ),
+                                contentPadding: EdgeInsets.all(15),
+                                dense: false,
+                                trailing: unsynced != 0
+                                    ? GestureDetector(
+                                        behavior: HitTestBehavior.translucent,
+                                        onTap: () async {
+                                          await syncFile(
+                                              userSnap.data[index], provider);
+                                          Scaffold.of(buildContext)
+                                              .showSnackBar(_snackBar);
+                                        },
+                                        child: provider.sycingRecord.contains(
+                                                    userSnap.data[index].id) ==
+                                                false
+                                            ? Icon(Icons.sync)
+                                            : CircularProgressIndicator())
+                                    : null);
+                          }),
                         ),
                       ],
                     );

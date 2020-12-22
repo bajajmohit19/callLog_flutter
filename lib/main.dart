@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:crm/providers/app_provider.dart';
-import 'package:crm/providers/category_provider.dart';
 import 'package:crm/providers/core_provider.dart';
+import 'package:crm/providers/app_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:crm/util/consts.dart';
 import 'package:workmanager/workmanager.dart';
 import 'dart:async';
-// import './src/bloc/ApplicationBloc.dart';
-// import './src/bloc/BlocProvider.dart';
 import 'package:crm/screens/splash.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -38,8 +35,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AppProvider()),
-        ChangeNotifierProvider(create: (_) => CoreProvider()),
-        ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => CoreProvider())
       ],
       child: MyApp(),
     ),

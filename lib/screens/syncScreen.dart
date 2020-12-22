@@ -9,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:crm/database/database.dart';
+import 'package:provider/provider.dart';
 
 DateTime currentBackPressTime;
 
@@ -22,12 +23,8 @@ class _SyncScreenState extends State<SyncScreen> {
   bool isSyncing = false;
   Map<String, dynamic> userData = new Map();
   int _currentIndex = 0;
-  List<bool> _isFileSyncing = List.filled(1, false);
-
   List<Widget> _children = [];
-  // call_logs phone calls sync -- database
-  // call recording sync -- automatic .. Download -- Name
-
+  bool syncCalled = false;
   void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
@@ -99,28 +96,15 @@ class _SyncScreenState extends State<SyncScreen> {
   void initState() {
     super.initState();
     getUser();
-    syncNow();
   }
 
-  syncNow() async {
-    if (isSyncing == true) {
-      return false;
-    }
-    var isFileSyncing = _isFileSyncing;
-    setState(() {
-      isSyncing = true;
-    });
-    await CoreProvider().syncCallLogs();
-    isFileSyncing[0] = true;
-    setState(() {
-      _isFileSyncing = [...isFileSyncing];
-    });
-    Stream<dynamic> recData = CoreProvider().syncRecordings();
+  syncNow(provider) async {
+    await provider.syncCallLogs();
+    Stream<dynamic> recData = provider.syncRecordings();
     recData.listen((dynamic value) {
       if (value == false) {
         setState(() {
           isSyncing = false;
-          _isFileSyncing = List.filled(1, false);
         });
         Fluttertoast.showToast(
             msg: "Recording synced!",
@@ -130,109 +114,11 @@ class _SyncScreenState extends State<SyncScreen> {
             textColor: Colors.white,
             fontSize: 16.0);
       } else {
-        // isFileSyncing = List.filled(value + 2, false);
-        isFileSyncing = List.filled(1, false);
-        isFileSyncing[0] = true;
         setState(() {
-          _isFileSyncing = [...isFileSyncing];
+          isSyncing = false;
         });
       }
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    _children = [
-      RecordingTabScreen(isFileSyncing: _isFileSyncing),
-      CallLogsTabScreen()
-    ];
-    return WillPopScope(
-      onWillPop: onWillPop,
-      child: Scaffold(
-        appBar: AppBar(
-            backgroundColor: Theme.of(context).primaryColor,
-            title: Text(
-              "Welcome! HT Sales CRM",
-              style: TextStyle(
-                fontSize: 20,
-              ),
-            ),
-            bottom: PreferredSize(
-                child: Container(
-                  alignment: Alignment.topLeft,
-                  padding: EdgeInsets.only(left: 15, bottom: 15),
-                  child: Text(
-                    '${userData['mobileNo']}',
-                    style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800),
-                  ),
-                ),
-                preferredSize: Size.fromHeight(30)),
-            actions: <Widget>[
-              RaisedButton(
-                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                onPressed: () async => {await syncNow()},
-                child: Row(
-                  children: [
-                    isSyncing == true
-                        ? Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 5),
-                            child: SizedBox(
-                              child: CircularProgressIndicator(
-                                backgroundColor: Colors.white,
-                              ),
-                              height: 20.0,
-                              width: 20.0,
-                            ),
-                          )
-                        : Text(''),
-                    Text(
-                      'Sync Now',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                elevation: 0,
-              ),
-            ]),
-        bottomNavigationBar: BottomNavigationBar(
-          onTap: onTabTapped,
-          currentIndex: _currentIndex,
-          items: [
-            new BottomNavigationBarItem(
-              icon: Icon(Icons.record_voice_over),
-              title: Text('Recordings'),
-            ),
-            new BottomNavigationBarItem(
-              icon: Icon(Icons.call),
-              title: Text('Call Logs'),
-            )
-          ],
-        ),
-        body: _children[_currentIndex],
-        persistentFooterButtons: [
-          SizedBox(
-            width: double.maxFinite,
-            child: RaisedButton(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              color: Colors.blue,
-              textColor: Colors.white,
-              onPressed: () => showAlertDialog(context),
-              child: Text(
-                'Logout',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              elevation: 5,
-            ),
-          )
-        ],
-      ),
-    );
   }
 
   Future<bool> onWillPop() {
@@ -244,5 +130,116 @@ class _SyncScreenState extends State<SyncScreen> {
       return Future.value(false);
     }
     return Future.value(true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<CoreProvider>(
+      create: (context) => CoreProvider(),
+      child: Builder(builder: (context) {
+        _children = [RecordingTabScreen(), CallLogsTabScreen()];
+        return WillPopScope(
+            onWillPop: onWillPop,
+            child: Scaffold(
+              appBar: AppBar(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  title: Text(
+                    "Welcome! HT Sales CRM",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  bottom: PreferredSize(
+                      child: Container(
+                        alignment: Alignment.topLeft,
+                        padding: EdgeInsets.only(left: 15, bottom: 15),
+                        child: Text(
+                          '${userData['mobileNo']}',
+                          style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                      preferredSize: Size.fromHeight(30)),
+                  actions: <Widget>[
+                    Consumer<CoreProvider>(builder: (context, provider, child) {
+                      if (syncCalled == false) {
+                        syncNow(provider);
+                        setState(() {
+                          syncCalled = true;
+                        });
+                      }
+                      return RaisedButton(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                        color: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                        onPressed: () async {
+                          // provider.setRecordingLoading(true);
+                          await syncNow(provider);
+                        },
+                        child: Row(
+                          children: [
+                            (provider.callsSyncing == true ||
+                                    provider.recordingSyncing == true)
+                                ? Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 5),
+                                    child: SizedBox(
+                                      child: CircularProgressIndicator(
+                                        backgroundColor: Colors.white,
+                                      ),
+                                      height: 20.0,
+                                      width: 20.0,
+                                    ),
+                                  )
+                                : Text(''),
+                            Text(
+                              'Sync Now',
+                              style: TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        elevation: 0,
+                      );
+                    }),
+                  ]),
+              bottomNavigationBar: BottomNavigationBar(
+                onTap: onTabTapped,
+                currentIndex: _currentIndex,
+                items: [
+                  new BottomNavigationBarItem(
+                    icon: Icon(Icons.record_voice_over),
+                    title: Text('Recordings'),
+                  ),
+                  new BottomNavigationBarItem(
+                    icon: Icon(Icons.call),
+                    title: Text('Call Logs'),
+                  )
+                ],
+              ),
+              body: _children[_currentIndex],
+              persistentFooterButtons: [
+                SizedBox(
+                  width: double.maxFinite,
+                  child: RaisedButton(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    color: Colors.blue,
+                    textColor: Colors.white,
+                    onPressed: () => showAlertDialog(context),
+                    child: Text(
+                      'Logout',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    elevation: 5,
+                  ),
+                )
+              ],
+            ));
+      }),
+    );
   }
 }
