@@ -246,7 +246,7 @@ class CoreProvider extends ChangeNotifier {
     setSyncedRecord(List.filled(1, item['id']));
     _recordingFileSyncing = true;
     var request = http.MultipartRequest(
-        "POST", new Uri.http(Constants.apiUrl, "/sync/audio"));
+        "POST", new Uri.https(Constants.apiUrl, "/sync/audio"));
 
     request.headers['Content-Encoding'] = "audio/mpeg";
     request.headers['Authorization'] = 'Bearer ${user["token"]}';
@@ -259,7 +259,7 @@ class CoreProvider extends ChangeNotifier {
       print('Uploaded!');
       item['mimeType'] = mimeType;
       var dataResponse = await http.post(
-          new Uri.http(Constants.apiUrl, "/sync/recordings"),
+          new Uri.https(Constants.apiUrl, "/sync/recordings"),
           body: jsonEncode({'arr': List.filled(1, item).toList()}),
           headers: {
             "Content-Type": "application/json",
@@ -290,7 +290,7 @@ class CoreProvider extends ChangeNotifier {
   syncMultipleRecording(files, user) async {
     // user = jsonDecode(user)["token"];
     var request = http.MultipartRequest(
-        "POST", new Uri.http(Constants.apiUrl, "/sync/audios"));
+        "POST", new Uri.https(Constants.apiUrl, "/sync/audios"));
 
     request.headers['Content-Encoding'] = "audio/mpeg";
     request.headers['Authorization'] = 'Bearer ${user["token"]}';
@@ -308,7 +308,7 @@ class CoreProvider extends ChangeNotifier {
       print('Files chunk uploaded!');
 
       var dataResponse = await http.post(
-          new Uri.http(Constants.apiUrl, "/sync/recordings"),
+          new Uri.https(Constants.apiUrl, "/sync/recordings"),
           body: jsonEncode({'arr': files.toList()}),
           headers: {
             "Content-Type": "application/json",
@@ -384,7 +384,7 @@ class CoreProvider extends ChangeNotifier {
       var body = jsonEncode({"arr": list});
 
       var response = await http.post(
-          new Uri.http(Constants.apiUrl, "/sync/callLogs"),
+          new Uri.https(Constants.apiUrl, "/sync/callLogs"),
           body: body,
           headers: {
             "Content-Type": "application/json",
