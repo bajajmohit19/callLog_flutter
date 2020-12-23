@@ -235,7 +235,7 @@ class CoreProvider extends ChangeNotifier {
   //Sync Recording Files Methods
 
   syncSingleRecording(file, user) async {
-    if (_recordingFileSyncing == true) {
+    if (_recordingFileSyncing == true || _recordingSyncing == true) {
       return;
     }
     // user = jsonDecode(user)["token"];
