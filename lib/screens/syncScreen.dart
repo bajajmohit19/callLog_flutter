@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:crm/database/database.dart';
 import 'package:provider/provider.dart';
+import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
 
 DateTime currentBackPressTime;
 
@@ -152,16 +153,49 @@ class _SyncScreenState extends State<SyncScreen> {
                   bottom: PreferredSize(
                       child: Container(
                         alignment: Alignment.topLeft,
-                        padding: EdgeInsets.only(left: 15, bottom: 15),
-                        child: Text(
-                          '${userData['mobileNo']}',
-                          style: TextStyle(
-                              fontSize: 20,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800),
-                        ),
+                        padding:
+                            EdgeInsets.only(left: 15, bottom: 15, right: 15),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '${userData['mobileNo']}',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800),
+                              ),
+                              Consumer<CoreProvider>(
+                                  builder: (context, provider, child) {
+                                return MaterialButton(
+                                    color: Theme.of(context).primaryColorLight,
+                                    onPressed: () async {
+                                      final List<DateTime> picked =
+                                          await DateRagePicker.showDatePicker(
+                                              context: context,
+                                              initialFirstDate:
+                                                  provider.fromDate,
+                                              initialLastDate: provider.toDate,
+                                              firstDate: new DateTime(
+                                                  new DateTime.now().year - 1),
+                                              lastDate: new DateTime.now());
+                                      if (picked != null &&
+                                          picked.length == 2) {
+                                        print(picked);
+                                        provider.setFromDate(picked.first);
+                                        provider.setToDate(picked.last);
+                                        setState(() {});
+                                      }
+                                    },
+                                    child: new Text(
+                                        '${provider.fromDate.toString().split(' ').first} - ${provider.toDate.toString().split(' ').first}',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w800)));
+                              })
+                            ]),
                       ),
-                      preferredSize: Size.fromHeight(30)),
+                      preferredSize: Size.fromHeight(45)),
                   actions: <Widget>[
                     Consumer<CoreProvider>(builder: (context, provider, child) {
                       if (syncCalled == false) {

@@ -43,8 +43,9 @@ class _TabScreenState extends State<RecordingTabScreen> {
     }
   }
 
-  getRecordings(unsynced) async {
-    recordings = await CoreProvider().getAllRecording(unsynced);
+  getRecordings(unsynced, context) async {
+    recordings = await Provider.of<CoreProvider>(context, listen: false)
+        .getAllRecording(unsynced);
 
     if (unsynced == true
         ? unsyncedCount != recordings.length
@@ -88,9 +89,9 @@ class _TabScreenState extends State<RecordingTabScreen> {
     getUser();
   }
 
-  Widget recordingWidget(unsynced) {
+  Widget recordingWidget(unsynced, context) {
     return FutureBuilder(
-      future: getRecordings(unsynced),
+      future: getRecordings(unsynced, context),
       builder: (buildContext, userSnap) {
         switch (userSnap.connectionState) {
           case ConnectionState.none:
@@ -213,15 +214,15 @@ class _TabScreenState extends State<RecordingTabScreen> {
                                     )))
                                 .toList()),
                         pinned: true,
-                        expandedHeight: 0,
+                        expandedHeight: 0.1,
                         floating: true),
                   ),
                 ];
               },
               body: TabBarView(
                 children: [
-                  recordingWidget(true),
-                  recordingWidget(0),
+                  recordingWidget(true, context),
+                  recordingWidget(0, context)
                 ],
               ))),
     );

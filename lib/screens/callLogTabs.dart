@@ -1,5 +1,6 @@
 import 'package:crm/providers/core_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:crm/screens/login.dart';
@@ -40,8 +41,9 @@ class _TabScreenState extends State<CallLogsTabScreen> {
     }
   }
 
-  getCallLogs(unsynced) async {
-    callLogs = await CoreProvider().getAllCallLogs(unsynced);
+  getCallLogs(unsynced, context) async {
+    callLogs = await Provider.of<CoreProvider>(context, listen: false)
+        .getAllCallLogs(unsynced);
 
     if (unsynced == true
         ? unsyncedCount != callLogs.length
@@ -67,9 +69,9 @@ class _TabScreenState extends State<CallLogsTabScreen> {
     return "${twoDigits(duration.inHours) == '00' ? '' : twoDigits(duration.inHours) + ':'}$twoDigitMinutes:$twoDigitSeconds";
   }
 
-  Widget callLogWidget(unsynced) {
+  Widget callLogWidget(unsynced, context) {
     return FutureBuilder(
-      future: getCallLogs(unsynced),
+      future: getCallLogs(unsynced, context),
       builder: (buildContext, userSnap) {
         switch (userSnap.connectionState) {
           case ConnectionState.none:
@@ -190,15 +192,15 @@ class _TabScreenState extends State<CallLogsTabScreen> {
                                     )))
                                 .toList()),
                         pinned: true,
-                        expandedHeight: 0,
+                        expandedHeight: 0.1,
                         floating: true),
                   ),
                 ];
               },
               body: TabBarView(
                 children: [
-                  callLogWidget(true),
-                  callLogWidget(false),
+                  callLogWidget(true, context),
+                  callLogWidget(false, context),
                 ],
               ))),
     );

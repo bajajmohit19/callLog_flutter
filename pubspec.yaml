@@ -45,6 +45,8 @@ dependencies:
   workmanager: ^0.2.3
   http_parser: ^3.1.4
   wakelock: ^0.2.1+1
+  flutter_ffmpeg: ^0.3.0
+  date_range_picker: ^1.0.6
 
 dev_dependencies:
   flutter_test:

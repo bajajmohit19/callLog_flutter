@@ -15,8 +15,14 @@ class UserObj {
   String mobileNo;
   String token;
   String recordingPath;
+  String asyncLimit;
 
-  UserObj({this.user_id, this.mobileNo, this.token, this.recordingPath});
+  UserObj(
+      {this.user_id,
+      this.mobileNo,
+      this.token,
+      this.recordingPath,
+      this.asyncLimit});
 
   toJSONEncodable() {
     Map<String, dynamic> m = new Map();
@@ -24,6 +30,7 @@ class UserObj {
     m['mobileNo'] = mobileNo;
     m['token'] = token;
     m['recordingPath'] = recordingPath;
+    m['asyncLimit'] = asyncLimit;
     return jsonEncode(m);
   }
 }
@@ -114,7 +121,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           ..mobileNo = jsonResponse['user']['mobile']
           ..token = jsonResponse['token']
           ..user_id = jsonResponse['user']['_id']
-          ..recordingPath = jsonResponse['user']['recordingPath'];
+          ..recordingPath = jsonResponse['user']['recordingPath']
+          ..asyncLimit = jsonResponse['user']['asyncLimit'];
         prefs.setString('currentUser', user.toJSONEncodable());
         Navigator.pushReplacement(
           context,

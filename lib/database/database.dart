@@ -89,7 +89,7 @@ class DBProvider {
     return 0;
   }
 
-  listRecordings({unsynced = false}) async {
+  listRecordings({unsynced = false, fromDate, toDate = false}) async {
     final db = await database;
     String query = "SELECT * FROM recordings";
     if (unsynced == true) {
@@ -97,6 +97,15 @@ class DBProvider {
     } else {
       query += " WHERE isSynced=1";
     }
+    if (fromDate != null) {
+      query += ' AND createdAt >= "' + fromDate.toString() + '"';
+    }
+    if (toDate != false) {
+      query += ' AND createdAt <= "' +
+          toDate.toString().split(' ').first +
+          ' 23:59:59"';
+    }
+    query += ' ORDER BY createdAt DESC';
     var res = await db.rawQuery(query);
     List<Recordings> list =
         res.isNotEmpty ? res.map((c) => Recordings.fromMap(c)).toList() : [];
@@ -174,13 +183,21 @@ class DBProvider {
     return raw;
   }
 
-  listCallLogs({unsynced = false}) async {
+  listCallLogs({unsynced = false, fromDate, toDate = false}) async {
     final db = await database;
     String query = "SELECT * FROM callLogs";
     if (unsynced == true) {
       query += " WHERE isSynced=0";
     } else {
       query += " WHERE isSynced=1";
+    }
+    if (fromDate != null) {
+      query += ' AND callingTime >= "' + fromDate.toString() + '"';
+    }
+    if (toDate != false) {
+      query += ' AND callingTime <= "' +
+          toDate.toString().split(' ').first +
+          ' 23:59:59"';
     }
     var res = await db.rawQuery(query);
     List<CallLogs> list =

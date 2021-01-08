@@ -15,9 +15,8 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-final asyncLimit = 2;
-
 class CoreProvider extends ChangeNotifier {
+  int asyncLimit = 1;
   bool loading = false;
   bool syncGlobalLoader = false;
 
@@ -37,6 +36,22 @@ class CoreProvider extends ChangeNotifier {
   bool get recordingSyncing => _recordingSyncing;
   bool get callsSyncing => _callsSyncing;
   List get sycingRecord => _syncingFiles;
+  DateTime _fromDate = new DateTime(
+      DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  DateTime _toDate = new DateTime(
+      DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  DateTime get fromDate => _fromDate;
+  DateTime get toDate => _toDate;
+
+  void setFromDate(value) {
+    _fromDate = value;
+    notifyListeners();
+  }
+
+  void setToDate(value) {
+    _toDate = value;
+    notifyListeners();
+  }
 
   void setLoading(value) {
     loading = value;
@@ -101,6 +116,7 @@ class CoreProvider extends ChangeNotifier {
       return false;
     } else {
       userData = jsonDecode(user);
+      asyncLimit = userData['asyncLimit'] == null ? 1 : userData['asyncLimit'];
       return userData;
     }
   }
@@ -216,8 +232,8 @@ class CoreProvider extends ChangeNotifier {
       return;
     }
     await getNewFiles();
-    List<Recordings> recordings =
-        await DBProvider.db.listRecordings(unsynced: unsynced);
+    List<Recordings> recordings = await DBProvider.db.listRecordings(
+        unsynced: unsynced, fromDate: _fromDate, toDate: _toDate);
     return recordings;
   }
 
@@ -227,8 +243,8 @@ class CoreProvider extends ChangeNotifier {
       return;
     }
     await getLogs();
-    List<CallLogs> callLogs =
-        await DBProvider.db.listCallLogs(unsynced: unsynced);
+    List<CallLogs> callLogs = await DBProvider.db
+        .listCallLogs(unsynced: unsynced, fromDate: _fromDate, toDate: _toDate);
     return callLogs;
   }
 
@@ -340,8 +356,8 @@ class CoreProvider extends ChangeNotifier {
     }
     setRecordingLoading(true);
     await getNewFiles();
-    List<Recordings> recordings =
-        await DBProvider.db.listRecordings(unsynced: true);
+    List<Recordings> recordings = await DBProvider.db
+        .listRecordings(unsynced: true, fromDate: _fromDate, toDate: _toDate);
 
     print('are we here');
     List chunksArr = chunk(recordings, asyncLimit);
@@ -373,7 +389,8 @@ class CoreProvider extends ChangeNotifier {
     List list = List();
     var isEmpty = false;
     while (isEmpty == false) {
-      callLogs = await DBProvider.db.listCallLogs(unsynced: true);
+      callLogs = await DBProvider.db
+          .listCallLogs(unsynced: true, fromDate: _fromDate, toDate: _toDate);
       if (callLogs.isEmpty == true) {
         isEmpty = true;
       }
