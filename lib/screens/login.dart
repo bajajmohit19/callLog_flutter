@@ -15,7 +15,7 @@ class UserObj {
   String mobileNo;
   String token;
   String recordingPath;
-  String asyncLimit;
+  int asyncLimit;
 
   UserObj(
       {this.user_id,
