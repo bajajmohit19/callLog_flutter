@@ -14,6 +14,9 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+
+final FlutterFFmpeg _flutterFFmpeg = new FlutterFFmpeg();
 
 class CoreProvider extends ChangeNotifier {
   int asyncLimit = 1;
@@ -121,7 +124,44 @@ class CoreProvider extends ChangeNotifier {
     }
   }
 
+  Future convertAudios(String type, user) async {
+    List<String> allowed = ["m4a"];
+
+    setLoading(true);
+
+    List<Directory> storages = await FileUtils.getStorageList();
+    for (var dir in storages) {
+      String path = dir.path +
+          (user['recordingPath'] == null ? "Call" : user['recordingPath']);
+      if (Directory(path).existsSync()) {
+        List<FileSystemEntity> files =
+            FileUtils.getAllFilesInPath(path, showHidden: false);
+
+        for (var file in files) {
+          try {
+            String ext = file.path.split("/")[file.path.split("/").length - 1];
+            ext = ext.split('.')[ext.split(".").length - 1];
+            if (allowed.contains(ext)) {
+              try {
+                await _flutterFFmpeg.execute('-y -i "' +
+                    file.path +
+                    '" -ar 8000 -ac 1 "' +
+                    file.path.split('.').first +
+                    '.amr"');
+                if (File(file.path).existsSync()) file.delete();
+              } catch (e) {}
+            }
+          } catch (e) {}
+        }
+      } else {
+        print(user['recordingPath'] + " folder doesnt exists");
+      }
+    }
+    setLoading(false);
+  }
+
   getAudios(String type, user) async {
+    await convertAudios(type, user);
     List<String> Allowed = ["mp3", "amr", "mp4", "m4a", "acc"];
 
     setLoading(true);
@@ -141,7 +181,8 @@ class CoreProvider extends ChangeNotifier {
             ext = ext.split('.')[ext.split(".").length - 1];
 
             if (Allowed.contains(ext)) {
-              audio.add(file);
+              print(File(file.path).existsSync());
+              if (File(file.path).existsSync()) audio.add(file);
             }
           } catch (e) {}
         });
