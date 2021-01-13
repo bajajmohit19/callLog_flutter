@@ -44,7 +44,7 @@ dependencies:
   loading_overlay: ^0.2.1
   workmanager: ^0.2.3
   http_parser: ^3.1.4
-  wakelock: ^0.2.1+1
+  wakelock:
   flutter_ffmpeg: ^0.3.0
   date_range_picker: ^1.0.6
 
