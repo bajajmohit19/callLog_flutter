@@ -21,6 +21,7 @@ final FlutterFFmpeg _flutterFFmpeg = new FlutterFFmpeg();
 class CoreProvider extends ChangeNotifier {
   int asyncLimit = 1;
   bool loading = false;
+  bool recordLoading = false;
   bool syncGlobalLoader = false;
 
   // check sync status
@@ -33,9 +34,13 @@ class CoreProvider extends ChangeNotifier {
   List<Recordings> dbFiles = List();
   List<CallLogs> dbLogs = List();
   List _syncingFiles = List();
+  int _syncedRecord = 0;
+  int _unsyncedRecord = 0;
 
   // Utils
 
+  int get syncedRecord => _syncedRecord;
+  int get unsyncedRecord => _unsyncedRecord;
   bool get recordingSyncing => _recordingSyncing;
   bool get callsSyncing => _callsSyncing;
   List get sycingRecord => _syncingFiles;
@@ -45,6 +50,16 @@ class CoreProvider extends ChangeNotifier {
       DateTime.now().year, DateTime.now().month, DateTime.now().day);
   DateTime get fromDate => _fromDate;
   DateTime get toDate => _toDate;
+
+  void setSyncedcount(value) {
+    _syncedRecord = value;
+    notifyListeners();
+  }
+
+  void setUnsyncedcount(value) {
+    _unsyncedRecord = value;
+    notifyListeners();
+  }
 
   void setFromDate(value) {
     _fromDate = value;
@@ -161,7 +176,7 @@ class CoreProvider extends ChangeNotifier {
   }
 
   getAudios(String type, user) async {
-    await convertAudios(type, user);
+    // await convertAudios(type, user);
     List<String> Allowed = ["mp3", "amr", "mp4", "m4a", "acc"];
 
     setLoading(true);
@@ -202,30 +217,7 @@ class CoreProvider extends ChangeNotifier {
       return;
     }
     await getAudios('audio', user);
-
-    for (FileSystemEntity file in audio) {
-      var title = pathlib.basename(file.path);
-      var time = new File(file.path).lastModifiedSync();
-      debugPrint('${time}');
-      dbFiles.add(recordingsFromJson({
-        'title': title,
-        'path': file.path,
-        'isSynced': false,
-        'createdAt': time,
-        'size': FileUtils.formatBytes(
-            file == null ? 678476 : File(file.path).lengthSync(), 2),
-        'formatedTime': file == null
-            ? "Test"
-            : FileUtils.formatTime(
-                File(file.path).lastModifiedSync().toIso8601String()),
-        'roNumber': user['mobileNo']
-      }));
-    }
-    try {
-      await DBProvider.db.addRecordings(dbFiles);
-    } catch (exception) {
-      print("");
-    }
+    return;
   }
 
   getLogs() async {
@@ -267,16 +259,63 @@ class CoreProvider extends ChangeNotifier {
     return 0;
   }
 
-  getAllRecording(unsynced) async {
+  Stream<dynamic> getAllRecording(unsynced) async* {
     var user = await isCurrentUser();
     if (user == false) {
       return;
     }
+    // if (recordLoading == true) {
+    //   return;
+    // }
+    recordLoading = true;
     await getNewFiles();
-    List<Recordings> recordings = await DBProvider.db.listRecordings(
-        unsynced: unsynced, fromDate: _fromDate, toDate: _toDate);
-    return recordings;
+    List chunksArr = chunk(audio, 10);
+    for (List files in chunksArr) {
+      // print(file);
+      dbFiles.clear();
+      files.forEach((file) {
+        var title = pathlib.basename(file.path);
+        var time = new File(file.path).lastModifiedSync();
+        dbFiles.add(recordingsFromJson({
+          'title': title,
+          'path': file.path,
+          'isSynced': false,
+          'createdAt': time,
+          'size': FileUtils.formatBytes(
+              file == null ? 678476 : File(file.path).lengthSync(), 2),
+          'formatedTime': file == null
+              ? "Test"
+              : FileUtils.formatTime(
+                  File(file.path).lastModifiedSync().toIso8601String()),
+          'roNumber': user['mobileNo']
+        }));
+      });
+      try {
+        await DBProvider.db.addRecordings(dbFiles);
+      } catch (e) {}
+      List<Recordings> recordings = await DBProvider.db.listRecordings(
+          unsynced: unsynced, fromDate: _fromDate, toDate: _toDate);
+      if (unsynced == true) {
+        setUnsyncedcount(recordings.length);
+      } else {
+        setSyncedcount(recordings.length);
+      }
+      yield recordings;
+    }
+    recordLoading = false;
+    return;
   }
+
+  // getAllRecording(unsynced) async {
+  //   var user = await isCurrentUser();
+  //   if (user == false) {
+  //     return;
+  //   }
+  //   await getNewFiles();
+  //   List<Recordings> recordings = await DBProvider.db.listRecordings(
+  //       unsynced: unsynced, fromDate: _fromDate, toDate: _toDate);
+  //   return recordings;
+  // }
 
   getAllCallLogs(unsynced) async {
     var user = await isCurrentUser();

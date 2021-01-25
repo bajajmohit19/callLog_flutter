@@ -15,8 +15,8 @@ void callbackDispatcher() {
     switch (task) {
       case sync:
         debugPrint('Syncing Start...');
-        CoreProvider().syncRecordings();
-        CoreProvider().syncCallLogs();
+        // CoreProvider().syncRecordings();
+        // CoreProvider().syncCallLogs();
 
         break;
     }

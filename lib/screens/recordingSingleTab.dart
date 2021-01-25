@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:crm/providers/core_provider.dart';
-import 'package:crm/screens/recordingSingleTab.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:crm/screens/login.dart';
@@ -10,15 +10,16 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class RecordingTabScreen extends StatefulWidget {
-  final bool isCalled;
-  RecordingTabScreen({Key key, this.isCalled}) : super(key: key);
+class RecordingScreen extends StatefulWidget {
+  final unsynced;
+  final BuildContext context;
+  RecordingScreen({Key key, this.unsynced, this.context}) : super(key: key);
 
   @override
-  _TabScreenState createState() => _TabScreenState();
+  _RecordingScreenState createState() => _RecordingScreenState();
 }
 
-class _TabScreenState extends State<RecordingTabScreen> {
+class _RecordingScreenState extends State<RecordingScreen> {
   String user;
   int syncedCount = 0;
   int unsyncedCount = 0;
@@ -26,8 +27,7 @@ class _TabScreenState extends State<RecordingTabScreen> {
   bool isSyncing = false;
   bool getCalled = false;
   StreamController _recordingController = StreamController.broadcast();
-  // int _currentIndex = 0;
-  // final List<Widget> _children = [];
+
   Map<String, dynamic> userData = new Map();
 
   var _snackBar;
@@ -36,7 +36,7 @@ class _TabScreenState extends State<RecordingTabScreen> {
     user = prefs.getString('currentUser');
     if (user == null) {
       Navigator.pushReplacement(
-        context,
+        widget.context,
         PageTransition(
           type: PageTransitionType.rightToLeft,
           child: Login(),
@@ -49,22 +49,12 @@ class _TabScreenState extends State<RecordingTabScreen> {
     }
   }
 
-  getRecordings(unsynced, context) async {
-    Provider.of<CoreProvider>(context, listen: false)
-        .getAllRecording(unsynced)
+  getRecordings(unsynced) async {
+    Provider.of<CoreProvider>(widget.context, listen: false)
+        .getAllRecording(widget.unsynced)
         .listen((event) {
-      if (event.length != 0) _recordingController.add(event);
+      _recordingController.add(event);
     });
-
-    // if (unsynced == true
-    //     ? unsyncedCount != recordings.length
-    //     : syncedCount != recordings.length)
-    //   setState(() {
-    //     unsynced == true
-    //         ? unsyncedCount = recordings.length
-    //         : syncedCount = recordings.length;
-    //   });
-    // return recordings;
   }
 
   showMessage(str, error) {
@@ -98,13 +88,9 @@ class _TabScreenState extends State<RecordingTabScreen> {
     getUser();
   }
 
-  Widget recordingWidget(unsynced, context) {
-    if (getCalled == false || widget.isCalled == true) {
-      getRecordings(unsynced, context);
-      setState(() {
-        getCalled = true;
-      });
-    }
+  @override
+  Widget build(BuildContext context) {
+    getRecordings(widget.unsynced);
     return StreamBuilder(
       stream: _recordingController.stream,
       initialData: [],
@@ -171,7 +157,7 @@ class _TabScreenState extends State<RecordingTabScreen> {
                                 ),
                                 contentPadding: EdgeInsets.all(15),
                                 dense: false,
-                                trailing: unsynced != 0
+                                trailing: widget.unsynced != 0
                                     ? GestureDetector(
                                         behavior: HitTestBehavior.translucent,
                                         onTap: () async {
@@ -195,54 +181,6 @@ class _TabScreenState extends State<RecordingTabScreen> {
               );
         }
       },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: DefaultTabController(
-          length: 2, // This is the number of tabs.
-          child: NestedScrollView(
-              headerSliverBuilder:
-                  (BuildContext context, bool innerBoxIsScrolled) {
-                // These are the slivers that show up in the "outer" scroll view.
-                return <Widget>[
-                  Consumer<CoreProvider>(builder: (context, provider, child) {
-                    final List<dynamic> _tabs = [
-                      'Unsynced (' + provider.unsyncedRecord.toString() + ')',
-                      'Synced (' + provider.syncedRecord.toString() + ')'
-                    ];
-                    return SliverOverlapAbsorber(
-                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                          context),
-                      sliver: SliverAppBar(
-                          backgroundColor: Color(0xff025dfa),
-                          titleSpacing: 0,
-                          toolbarHeight: 0,
-                          flexibleSpace: TabBar(
-                              tabs: _tabs
-                                  .map((name) => Tab(
-                                          child: Text(
-                                        name,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                        ),
-                                      )))
-                                  .toList()),
-                          pinned: true,
-                          expandedHeight: 0.1,
-                          floating: true),
-                    );
-                  })
-                ];
-              },
-              body: TabBarView(
-                children: [
-                  RecordingScreen(unsynced: true, context: context),
-                  RecordingScreen(unsynced: 0, context: context)
-                ],
-              ))),
     );
   }
 }

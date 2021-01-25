@@ -138,7 +138,12 @@ class _SyncScreenState extends State<SyncScreen> {
     return ChangeNotifierProvider<CoreProvider>(
       create: (context) => CoreProvider(),
       child: Builder(builder: (context) {
-        _children = [RecordingTabScreen(), CallLogsTabScreen()];
+        _children = [
+          RecordingTabScreen(
+            isCalled: syncCalled,
+          ),
+          CallLogsTabScreen()
+        ];
         return WillPopScope(
             onWillPop: onWillPop,
             child: Scaffold(
@@ -184,7 +189,9 @@ class _SyncScreenState extends State<SyncScreen> {
                                         print(picked);
                                         provider.setFromDate(picked.first);
                                         provider.setToDate(picked.last);
-                                        setState(() {});
+                                        setState(() {
+                                          syncCalled = false;
+                                        });
                                       }
                                     },
                                     child: new Text(
@@ -199,7 +206,7 @@ class _SyncScreenState extends State<SyncScreen> {
                   actions: <Widget>[
                     Consumer<CoreProvider>(builder: (context, provider, child) {
                       if (syncCalled == false) {
-                        syncNow(provider);
+                        // syncNow(provider);
                         setState(() {
                           syncCalled = true;
                         });

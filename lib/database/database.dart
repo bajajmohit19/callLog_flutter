@@ -29,13 +29,14 @@ class DBProvider {
         onCreate: (Database db, int version) async {
       await db.execute("CREATE TABLE recordings ("
           "id TEXT PRIMARY KEY,"
-          "title TEXT UNIQUE,"
-          "path TEXT UNIQUE,"
+          "title TEXT,"
+          "path TEXT,"
           "isSynced BOOLEAN,"
           "size TEXT,"
           "formatedTime TEXT,"
           "roNumber TEXT,"
-          "createdAt CURRENT_TIMESTAMP"
+          "createdAt CURRENT_TIMESTAMP,"
+          "UNIQUE(title, path, size)"
           ")");
       await db.execute("CREATE TABLE callLogs ("
           "id TEXT PRIMARY KEY,"
