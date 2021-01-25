@@ -206,7 +206,7 @@ class _SyncScreenState extends State<SyncScreen> {
                   actions: <Widget>[
                     Consumer<CoreProvider>(builder: (context, provider, child) {
                       if (syncCalled == false) {
-                        // syncNow(provider);
+                        syncNow(provider);
                         setState(() {
                           syncCalled = true;
                         });
