@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:crm/screens/login.dart';
 import 'dart:convert';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class RecordingTabScreen extends StatefulWidget {
@@ -55,16 +54,6 @@ class _TabScreenState extends State<RecordingTabScreen> {
         .listen((event) {
       if (event.length != 0) _recordingController.add(event);
     });
-
-    // if (unsynced == true
-    //     ? unsyncedCount != recordings.length
-    //     : syncedCount != recordings.length)
-    //   setState(() {
-    //     unsynced == true
-    //         ? unsyncedCount = recordings.length
-    //         : syncedCount = recordings.length;
-    //   });
-    // return recordings;
   }
 
   showMessage(str, error) {
@@ -96,106 +85,6 @@ class _TabScreenState extends State<RecordingTabScreen> {
   void initState() {
     super.initState();
     getUser();
-  }
-
-  Widget recordingWidget(unsynced, context) {
-    if (getCalled == false || widget.isCalled == true) {
-      getRecordings(unsynced, context);
-      setState(() {
-        getCalled = true;
-      });
-    }
-    return StreamBuilder(
-      stream: _recordingController.stream,
-      initialData: [],
-      builder: (buildContext, userSnap) {
-        switch (userSnap.connectionState) {
-          case ConnectionState.none:
-          case ConnectionState.waiting:
-            return new Container(
-                margin: EdgeInsets.only(top: 20),
-                child: Center(
-                    child: new Text(
-                  'loading...',
-                  style: TextStyle(fontSize: 24, color: Colors.indigo),
-                )));
-          default:
-            if (userSnap.hasError)
-              return new Text('Error: ${userSnap.error}');
-            else
-              return new Container(
-                // margin: EdgeInsets.only(top: 40),
-                child: ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: userSnap.data == null ? 0 : userSnap.data.length,
-                  itemBuilder: (context, index) {
-                    return Column(
-                      children: <Widget>[
-                        Card(
-                          child: Consumer<CoreProvider>(
-                              builder: (context, provider, child) {
-                            return ListTile(
-                                isThreeLine: true,
-                                leading: Icon(Icons.music_note),
-                                title: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Text(userSnap.data[index].title)
-                                  ],
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Column(children: [
-                                      Text(userSnap.data[index].path.toString(),
-                                          style: TextStyle(fontSize: 12)),
-                                    ]),
-                                    Row(
-                                      children: [
-                                        Text(
-                                            DateFormat('dd/MM/yyyy hh:mm')
-                                                .format(userSnap
-                                                    .data[index].createdAt),
-                                            style: TextStyle(fontSize: 12)),
-                                        Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 5),
-                                          child: Text(userSnap.data[index].size,
-                                              style: TextStyle(fontSize: 12)),
-                                        )
-                                      ],
-                                    )
-                                  ],
-                                ),
-                                contentPadding: EdgeInsets.all(15),
-                                dense: false,
-                                trailing: unsynced != 0
-                                    ? GestureDetector(
-                                        behavior: HitTestBehavior.translucent,
-                                        onTap: () async {
-                                          await syncFile(
-                                              userSnap.data[index], provider);
-                                          Scaffold.of(buildContext)
-                                              .showSnackBar(_snackBar);
-                                        },
-                                        child: provider.sycingRecord.contains(
-                                                    userSnap.data[index].id) ==
-                                                false
-                                            ? Icon(Icons.sync)
-                                            : CircularProgressIndicator())
-                                    : null);
-                          }),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              );
-        }
-      },
-    );
   }
 
   @override

@@ -50,7 +50,40 @@ class _SyncScreenState extends State<SyncScreen> {
     }
   }
 
-  showAlertDialog(BuildContext context) {
+  showDeleteAlertDialog(BuildContext context, provider) {
+    // set up the buttons
+    Widget cancelButton = FlatButton(
+      child: Text("No"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+    Widget continueButton = FlatButton(
+      child: Text("Yes"),
+      onPressed: () {
+        Navigator.pop(context);
+        deletRecord(provider);
+      },
+    );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Confirm Delete"),
+      content: Text("Are you sure you want to delete all synced records."),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  showLogoutAlertDialog(BuildContext context) {
     // set up the buttons
     Widget cancelButton = FlatButton(
       child: Text("No"),
@@ -91,6 +124,11 @@ class _SyncScreenState extends State<SyncScreen> {
         child: SyncScreen(),
       ),
     );
+  }
+
+  deletRecord(provider) async {
+    await provider.deleteRecordings(0);
+    Fluttertoast.showToast(msg: 'Files Deleted.');
   }
 
   @override
@@ -245,7 +283,7 @@ class _SyncScreenState extends State<SyncScreen> {
                         ),
                         elevation: 0,
                       );
-                    }),
+                    })
                   ]),
               bottomNavigationBar: BottomNavigationBar(
                 onTap: onTabTapped,
@@ -262,6 +300,24 @@ class _SyncScreenState extends State<SyncScreen> {
                 ],
               ),
               body: _children[_currentIndex],
+              floatingActionButton:
+                  Consumer<CoreProvider>(builder: (context, provider, child) {
+                return FloatingActionButton(
+                    onPressed: () async {
+                      showDeleteAlertDialog(context, provider);
+                      // Add your onPressed code here!
+                    },
+                    child: provider.deleteLoader == true
+                        ? SizedBox(
+                            child: CircularProgressIndicator(
+                              backgroundColor: Colors.white,
+                            ),
+                            height: 20.0,
+                            width: 20.0,
+                          )
+                        : Icon(Icons.delete),
+                    backgroundColor: Colors.redAccent);
+              }),
               persistentFooterButtons: [
                 SizedBox(
                   width: double.maxFinite,
@@ -269,7 +325,7 @@ class _SyncScreenState extends State<SyncScreen> {
                     padding: EdgeInsets.symmetric(vertical: 10),
                     color: Colors.blue,
                     textColor: Colors.white,
-                    onPressed: () => showAlertDialog(context),
+                    onPressed: () => showLogoutAlertDialog(context),
                     child: Text(
                       'Logout',
                       style:

@@ -23,6 +23,7 @@ class CoreProvider extends ChangeNotifier {
   bool loading = false;
   bool recordLoading = false;
   bool syncGlobalLoader = false;
+  bool deleteLoader = false;
 
   // check sync status
   bool _recordingFileSyncing = false;
@@ -78,6 +79,11 @@ class CoreProvider extends ChangeNotifier {
 
   void setGlobalLoading(value) {
     syncGlobalLoader = value;
+    notifyListeners();
+  }
+
+  void setDeleteLoading(value) {
+    deleteLoader = value;
     notifyListeners();
   }
 
@@ -304,6 +310,25 @@ class CoreProvider extends ChangeNotifier {
     }
     recordLoading = false;
     return;
+  }
+
+  deleteRecordings(unsynced) async {
+    var user = await isCurrentUser();
+    if (user == false) {
+      return;
+    }
+    setDeleteLoading(true);
+    List<Recordings> recordings =
+        await DBProvider.db.listRecordings(unsynced: unsynced, fromDate: null);
+    for (var record in recordings) {
+      String path = record.path;
+      if (File(path).existsSync()) {
+        File(path).delete();
+      }
+    }
+    var res = await DBProvider.db.deleteRecordings(unsynced: unsynced);
+    setDeleteLoading(false);
+    return res;
   }
 
   // getAllRecording(unsynced) async {

@@ -90,6 +90,19 @@ class DBProvider {
     return 0;
   }
 
+  deleteRecordings({unsynced = false}) async {
+    final db = await database;
+    String query = "DELETE FROM recordings";
+    if (unsynced == true) {
+      query += " WHERE isSynced=0";
+    } else {
+      query += " WHERE isSynced=1";
+    }
+
+    var res = await db.rawQuery(query);
+    return res;
+  }
+
   listRecordings({unsynced = false, fromDate, toDate = false}) async {
     final db = await database;
     String query = "SELECT * FROM recordings";
@@ -110,7 +123,6 @@ class DBProvider {
     var res = await db.rawQuery(query);
     List<Recordings> list =
         res.isNotEmpty ? res.map((c) => Recordings.fromMap(c)).toList() : [];
-    print(list);
     return list;
   }
 
