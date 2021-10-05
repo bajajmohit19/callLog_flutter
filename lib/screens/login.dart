@@ -44,9 +44,9 @@ class Login extends StatelessWidget {
           child: Scaffold(
               appBar: AppBar(
                 centerTitle: true,
-                backgroundColor: Theme.of(context).primaryColor,
+                backgroundColor: Theme.of(context).backgroundColor,
                 title: Text(
-                  "Login - ${Constants.appName}",
+                  "Welcome Again - ${Constants.appName}",
                   style: TextStyle(
                     fontSize: 25,
                   ),
@@ -169,7 +169,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               ),
               validator: (value) {
                 if (value.isEmpty || value.length != 10) {
-                  return 'Please enter 10 digit mobile number';
+                  return 'Please Enter 10 Digit Mobile No.';
                 }
                 return null;
               },
@@ -187,7 +187,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 ),
                 validator: (value) {
                   if (value.isEmpty) {
-                    return 'Please enter otp';
+                    return 'Please Enter OTP';
                   }
                   return null;
                 },
